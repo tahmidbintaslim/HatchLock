@@ -27,12 +27,18 @@ echo "  [PASS] Plugin manifest, 18 LSP servers, and 5 skills are well-formed"
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-run_hook() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" | ./scripts/verify-edit.sh 2>/dev/null; }
-expect() { # expect <exit-code> <file> <label>
-  set +e; run_hook "$2"; local ret=$?; set -e
-  [[ $ret -eq $1 ]] || fail "$3: expected exit $1, got $ret"
-  echo "  [PASS] $3 (exit $1)"
+# check <expected-exit> <label> <script> <json-payload>
+check() {
+  local want=$1 label=$2 script=$3 payload=$4 ret
+  set +e; ./scripts/"$script" <<<"$payload" 2>"$TMP_DIR/stderr"; ret=$?; set -e
+  [[ $ret -eq $want ]] || fail "$label: expected exit $want, got $ret ($(head -c 300 "$TMP_DIR/stderr"))"
+  echo "  [PASS] $label (exit $want)"
 }
+# Hook payloads built with jq so paths with spaces/quotes stay valid JSON.
+write_json() { jq -nc --arg f "$1" --arg c "${2:-}" '{tool_name:"Write",tool_input:{file_path:$f,content:$c}}'; }
+edit_json()  { jq -nc --arg f "$1" --arg n "$2" '{tool_name:"Edit",tool_input:{file_path:$f,old_string:"x",new_string:$n}}'; }
+post() { check "$1" "$2" verify-edit.sh "$(write_json "$3")"; }
+pre()  { check "$1" "$2" guard-escape-hatches.sh "$3"; }
 
 cat > "$TMP_DIR/clean.ts" <<'TS'
 export function calculateTotal(prices: readonly number[]): number {
@@ -43,26 +49,23 @@ export function calculateTotal(prices: readonly number[]): number {
   return sum;
 }
 TS
-
-cat > "$TMP_DIR/bloat.ts" <<'TS'
-// @ts-ignore
-export function brokenTotal(prices: any): number {
-  return (prices as any).reduce((a: number, b: number) => a + b, 0);
-}
-TS
-
-printf 'x = 1  # type: ignore\n' > "$TMP_DIR/suppressed.py"
 printf 'if true; then\n' > "$TMP_DIR/broken.sh"
 
-expect 0 "$TMP_DIR/clean.ts"        "Clean TS file passes"
-expect 2 "$TMP_DIR/bloat.ts"        "@ts-ignore / as any blocked"
-expect 2 "$TMP_DIR/suppressed.py"   "# type: ignore blocked"
-expect 2 "$TMP_DIR/broken.sh"       "Shell syntax error fed back"
-expect 0 "$TMP_DIR/does-not-exist.ts" "Missing file is ignored"
+# PreToolUse escape-hatch guard
+pre 2 "Write with @ts-ignore blocked"            "$(write_json "$TMP_DIR/bloat.ts" $'// @ts-ignore\nexport const x = 1;')"
+pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'const y = x as any;')"
+pre 0 "polyglot-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # polyglot-allow: stub lib')"
+pre 0 "Non-source file (.md) not scanned"        "$(write_json "$TMP_DIR/notes.md" 'Never use @ts-ignore')"
+pre 0 "Clean TS write allowed"                   "$(write_json "$TMP_DIR/clean.ts" "$(cat "$TMP_DIR/clean.ts")")"
+
+# PostToolUse per-file check
+post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
+post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
+post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
 
 if command -v python3 >/dev/null 2>&1 && ! command -v pyright >/dev/null 2>&1; then
   printf 'def f(:\n' > "$TMP_DIR/broken.py"
-  expect 2 "$TMP_DIR/broken.py" "Python syntax error fed back"
+  post 2 "Python syntax error fed back" "$TMP_DIR/broken.py"
   [[ ! -d "$TMP_DIR/__pycache__" ]] || fail "py_compile left __pycache__ behind"
 fi
 

@@ -12,20 +12,7 @@ FILE_PATH=$(jq -r '.tool_input.file_path // empty' <<<"$PAYLOAD")
 
 EXT="${FILE_PATH##*.}"
 
-# 1. Anti-suppression escape-hatch blocker (source files only)
-case "$EXT" in
-  ts|tsx|js|jsx|mjs|cjs|vue|py|pyi|rs|go|c|cpp|cc|h|hpp|zig|java|cs|php|rb|ex|exs|swift|kt|kts|dart|lua)
-    MATCHES=$(grep -En '(@ts-ignore|@ts-expect-error|\bas any\b|:\s*any\b|#\s*type:\s*ignore|@phpstan-ignore|#\[allow\(dead_code\)\]|//\s*nolint)' "$FILE_PATH" 2>/dev/null || true)
-    if [[ -n "$MATCHES" ]]; then
-      echo "[Polyglot Guardrail] Blocked compiler/type suppression detected in $FILE_PATH:" >&2
-      head -n 10 <<<"$MATCHES" >&2
-      echo "Fix the underlying type or interface contract instead of silencing the compiler." >&2
-      exit 2
-    fi
-    ;;
-esac
-
-# 2. Deterministic compiler & syntax loop (each check is skipped if its tool is absent)
+# Deterministic compiler & syntax loop (each check is skipped if its tool is absent)
 OUTPUT=""
 STATUS=0
 has() { command -v "$1" >/dev/null 2>&1; }

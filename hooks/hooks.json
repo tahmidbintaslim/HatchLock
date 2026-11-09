@@ -11,6 +11,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/guard-escape-hatches.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

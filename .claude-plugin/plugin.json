@@ -28,5 +28,6 @@
     "php",
     "ruby",
     "swift"
-  ]
+  ],
+  "homepage": "https://github.com/tahmidbintaslim/claude-code-polyglot"
 }

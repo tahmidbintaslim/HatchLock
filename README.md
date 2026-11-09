@@ -1,96 +1,166 @@
 # 🔒 HatchLock for Claude Code
 
-**18-Language Native LSP Code Intelligence, Self-Healing Compiler Loops, and Minimal-Diff Engineering Skills for Claude Code.**
+**Locks the type-checker escape hatches before they land.** HatchLock stops Claude Code from silencing your compiler with `@ts-ignore`, `as any`, `# type: ignore`, `//nolint` and friends, checks every edit against your own local compilers across 18 languages, and adds minimal-diff, optimization and architecture skills.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Claude Code Plugin](https://img.shields.io/badge/Claude_Code-Plugin_&_Marketplace-blueviolet)](https://github.com/tahmidbintaslim/claude-code-polyglot)
-[![Languages: 18](https://img.shields.io/badge/LSP_Languages-18_Supported-success)](#supported-languages)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tahmid)
 
-Stop AI spaghetti code, premature abstractions, and silent cross-file type breaks. **HatchLock** combines **18 native Language Server Protocol (`.lsp.json`) bridges**, a **deterministic `PostToolUse` compiler loop (`Exit Code 2`)**, and **minimal-diff coding & systems optimization skills** in a single 1-command install.
-
 ---
 
-## ⚡ Why HatchLock Beats Static `CLAUDE.md` Prompts
+## Install
 
-| Capability | Raw Claude Code | Static `CLAUDE.md` Prompts | HatchLock |
-| :--- | :---: | :---: | :---: |
-| **Minimal-diff coding principles** | ❌ | ✅ | ✅ Auto-enforced (`tight-diff`) |
-| **Native 18-Language LSP Graph** | ❌ | ❌ | ✅ Pre-wired in `.lsp.json` |
-| **Self-Healing Compiler Loop** | ❌ | ❌ | ✅ `PostToolUse` Hook (`Exit Code 2`) |
-| **Blocks `@ts-ignore` / `as any` / `# type: ignore`** | ❌ | ⚠️ Prompt only | ✅ Mechanically blocked by hook |
-| **AI/LLM & SQL Performance Optimization** | ❌ | ❌ | ✅ `/hatchlock:optimize` |
-| **Data-First System Architecture & ADRs** | ❌ | ❌ | ✅ `/hatchlock:architect` |
-
----
-
-## 🚀 1-Command Installation
-
-### Option 1: Install via Claude Code Marketplace (Recommended)
 ```bash
 claude plugin marketplace add tahmidbintaslim/claude-code-polyglot
+```
+
+```bash
 claude plugin install hatchlock@hatchlock-marketplace
 ```
 
-### Option 2: Run Directly from a Local Clone
+Or run from a local clone:
+
 ```bash
 git clone https://github.com/tahmidbintaslim/claude-code-polyglot.git
+```
+
+```bash
 claude --plugin-dir ./claude-code-polyglot
+```
+
+### Updating
+
+Third-party marketplaces do not auto-update by default:
+
+```bash
+claude plugin marketplace update hatchlock-marketplace
 ```
 
 ---
 
-## 🛠️ Included Slash Commands & Skills
+## How it works
 
-- **Always-On (`tight-diff`):** Automatically enforces Think Before Coding, Simplicity First (200-to-50 line rule), LSP Symbol Traversal before Edits, and Goal-Driven Compiler Verification.
-- **`/hatchlock:optimize [target]`:** First-principles latency, memory, SQL N+1, and AI/LLM token/KV-cache optimization (`llm.c`-style).
-- **`/hatchlock:architect [feature]`:** Data-first schema modeling, boundary validation, and 3-tier architecture trade-off matrices.
-- **`/hatchlock:clean [file]`:** Strips single-use wrappers (Rule of Three) and flattens nested control flow to guard clauses.
-- **`/hatchlock:doctor`:** Audits your machine for all 18 LSP binaries and prints 1-line install commands for missing tools.
+HatchLock checks code at three points:
+
+| Stage | Hook | What happens |
+| :--- | :--- | :--- |
+| **Before each write** | `PreToolUse` on `Write`/`Edit` | The new text is scanned for escape hatches. If one is found, the write is **blocked** and Claude is told to fix the type instead. |
+| **After each edit** | `PostToolUse` on `Write`/`Edit` | A fast syntax/type check runs on that one file. Errors go back to Claude. |
+| **End of each turn** | `Stop` | Whole-project compilers run once for each language with uncommitted changes. Errors make Claude continue and fix them (at most once per turn, never a loop). |
+
+### Blocked escape hatches
+
+`@ts-ignore` · `@ts-expect-error` · `as any` · `: any` · `# type: ignore` · `@phpstan-ignore` · `#[allow(dead_code)]` · `// nolint`
+
+Scanned in source files only (`.ts .tsx .js .jsx .mjs .cjs .vue .py .pyi .rs .go .c .cpp .cc .h .hpp .zig .java .cs .php .rb .ex .exs .swift .kt .kts .dart .lua`), never in docs.
+
+**Genuinely need one?** Put `hatchlock-allow: <reason>` on the same line:
+
+```ts
+// @ts-expect-error hatchlock-allow: asserting this call is a type error
+```
+
+### What the hooks run
+
+Everything runs locally with tools you already have installed. A missing tool means that check is skipped, never a failure. **No network calls, no telemetry, no data leaves your machine.**
+
+| Language | After each edit (that file) | End of turn (project) |
+| :--- | :--- | :--- |
+| TypeScript / JS / Vue | — | `node_modules/.bin/tsc --noEmit --incremental` (needs `tsconfig.json`) |
+| Python | `pyright <file>` → fallback `python3` compile check | — |
+| Rust | — | `cargo check` (needs `Cargo.toml`) |
+| Go | `gofmt -e` | `go vet ./...` (needs `go.mod`) |
+| C / C++ | `clang -fsyntax-only` | — |
+| Zig | `zig ast-check` | — |
+| Java | — | `javac -Xlint:all` on changed files (output to a temp dir) |
+| C# | — | `dotnet build --no-restore` (needs `*.csproj`) |
+| PHP | `php -l` | — |
+| Ruby | `ruby -c` | — |
+| Elixir | parse with `Code.string_to_quoted!` | — |
+| Swift | — | `swift build` (needs `Package.swift`) |
+| Dart | `dart analyze <file>` | — |
+| Lua | `luac -p` | — |
+| Bash / Shell | `shellcheck` → fallback `bash -n` | — |
+| Terraform | — | `terraform validate` in changed directories |
+| R | `parse(file=…)` | — |
+| Kotlin | — | — (no check; `kotlinc` is too slow for a hook) |
+
+Requires `jq`. Without it, every hook exits silently.
 
 ---
 
-## Supported Languages
+## Language servers
 
-| # | Language | Extensions | LSP Server | Post-Edit Check |
-| :-- | :--- | :--- | :--- | :--- |
-| 1 | TypeScript / JS / Vue | `.ts .tsx .js .jsx .mjs .cjs .vue` | `typescript-language-server` | `npx tsc --noEmit` (if `tsconfig.json`) |
-| 2 | Python | `.py .pyi` | `pyright-langserver` | `pyright` → `python3 -m py_compile` |
-| 3 | Rust | `.rs` | `rust-analyzer` | `cargo check` (if `Cargo.toml`) |
-| 4 | Go | `.go` | `gopls` | `go vet` (package dir) |
-| 5 | C / C++ | `.c .cpp .cc .h .hpp` | `clangd` | `clang -fsyntax-only` |
-| 6 | Zig | `.zig` | `zls` | `zig ast-check` |
-| 7 | Java | `.java` | `jdtls` | `javac -Xlint:all` |
-| 8 | C# | `.cs` | `csharp-ls` | `dotnet build` (if `*.csproj`) |
-| 9 | PHP | `.php` | `intelephense` | `php -l` |
-| 10 | Ruby | `.rb` | `ruby-lsp` | `ruby -c` |
-| 11 | Elixir | `.ex .exs` | `elixir-ls` | `Code.string_to_quoted!` parse |
-| 12 | Swift | `.swift` | `sourcekit-lsp` | `swiftc -typecheck` |
-| 13 | Kotlin | `.kt .kts` | `kotlin-language-server` | — (LSP only; `kotlinc` too slow for a 30s hook) |
-| 14 | Dart | `.dart` | `dart language-server` | `dart analyze` |
-| 15 | Lua | `.lua` | `lua-language-server` | `luac -p` |
-| 16 | Bash / Shell | `.sh .bash .zsh` | `bash-language-server` | `shellcheck` → `bash -n` |
-| 17 | Terraform | `.tf .tfvars` | `terraform-ls` | `terraform validate` |
-| 18 | R | `.r .R` | `languageserver` | `parse(file=...)` |
+HatchLock bundles LSP configs **only for languages Anthropic does not ship an official LSP plugin for**:
 
-Missing toolchains are skipped silently — the hook never blocks on a tool you don't have.
+| Language | Server | Install |
+| :--- | :--- | :--- |
+| Zig | `zls` | `brew install zls` |
+| Elixir | `elixir-ls` | `brew install elixir-ls` |
+| Dart | `dart language-server` | `brew install dart-sdk` |
+| Bash / Shell | `bash-language-server` | `npm i -g bash-language-server` |
+| Terraform | `terraform-ls` | `brew install hashicorp/tap/terraform-ls` |
+| R | `languageserver` | `R -e 'install.packages("languageserver")'` |
 
-## 🧪 Development
+For TypeScript, Python, Rust, Go, C/C++, Java, C#, PHP, Ruby, Swift, Kotlin and Lua, install Anthropic's official plugins, for example:
+
+```bash
+claude plugin install typescript-lsp@claude-plugins-official
+```
+
+Run `/hatchlock:doctor` to see exactly what is installed and what to add.
+
+**Cloud sessions:** Claude Code does not start language servers in cloud sessions. The hooks still run.
+
+---
+
+## Skills
+
+| Command | What it does |
+| :--- | :--- |
+| `tight-diff` (auto) | Minimal, surgical changes; LSP lookups before changing signatures; no escape hatches; verify before moving on. |
+| `/hatchlock:optimize [target]` | First-principles performance: N+1 queries, accidental O(N²), memory, LLM prompt/prefix-cache layout. |
+| `/hatchlock:architect [feature]` | Data-first design: schemas and state machines first, then a 3-option trade-off matrix. |
+| `/hatchlock:clean [file]` | Inline single-use abstractions, flatten nesting, remove dead code without behaviour changes. |
+| `/hatchlock:doctor` | Audit installed language servers and compilers. |
+
+### Example prompts
+
+1. "Fix the type errors in `src/billing.ts` without using `any` or `@ts-ignore`."
+2. "/hatchlock:optimize the `/orders` endpoint, it's doing one query per line item."
+3. "/hatchlock:clean `lib/report_builder.py`, then confirm behaviour is unchanged."
+
+---
+
+## Enterprise
+
+Organizations that set `allowManagedHooksOnly` in managed settings disable plugin hooks, including HatchLock's. The skills and language servers still work.
+
+## Other editors
+
+`.cursor/rules/hatchlock-tight-diff.mdc` carries the same rules for Cursor and Windsurf (advisory only; no hooks).
+
+## Development
 
 ```bash
 ./tests/test-suite.sh
 ```
 
----
+```bash
+claude plugin validate . --strict
+```
+
+## Support
+
+Report bugs and ask questions in [GitHub Issues](https://github.com/tahmidbintaslim/claude-code-polyglot/issues).
 
 ## Inspired by
 
-The `tight-diff` principles are adapted from [Andrej Karpathy's January 2026 post on LLM coding pitfalls](https://x.com/karpathy/status/2015883857489522876). HatchLock is an independent project and is not affiliated with or endorsed by Andrej Karpathy or Anthropic.
+The `tight-diff` principles are adapted from [Andrej Karpathy's January 2026 post on LLM coding pitfalls](https://x.com/karpathy/status/2015883857489522876). HatchLock is an independent project and is not affiliated with or endorsed by Andrej Karpathy, Anthropic or OpenAI.
 
-## ☕ Support & Sponsorship
+## ☕ Support the project
 
-If HatchLock saves you hours of debugging AI-generated type breaks and spaghetti abstractions, consider supporting ongoing maintenance:
-
-- ⭐ **Star this repository** on GitHub to help more developers discover it!
+- ⭐ Star the repository
 - ☕ [Buy Me a Coffee](https://buymeacoffee.com/tahmid)
-- 🌐 [Author Website — Tahmid Bin Taslim Rafi](https://tahmid.space)
+- 🌐 [Tahmid Bin Taslim Rafi](https://tahmid.space)
+
+MIT License.

@@ -1,0 +1,39 @@
+{
+  "name": "hatchlock",
+  "version": "1.1.0",
+  "description": "Minimal-diff, type-safety, optimization and architecture skills that keep code changes small, compiler-verified and free of type-checker escape hatches.",
+  "author": {
+    "name": "Tahmid Bin Taslim Rafi",
+    "url": "https://tahmid.space"
+  },
+  "homepage": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+  "repository": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+  "license": "MIT",
+  "keywords": [
+    "type-safety",
+    "escape-hatch",
+    "minimal-diff",
+    "refactoring",
+    "performance",
+    "architecture"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "HatchLock",
+    "shortDescription": "Type-safety guardrails",
+    "longDescription": "HatchLock keeps AI-written code changes small and honest. tight-diff enforces minimal, surgical edits that never silence the type checker with @ts-ignore, as any, # type: ignore or similar escape hatches. optimize finds N+1 queries, accidental O(N^2) loops and prompt-caching mistakes. architect designs data-first schemas with a three-option trade-off matrix. clean inlines single-use abstractions and flattens nested control flow without changing behaviour. Skills only: runs no code and connects to no services.",
+    "developerName": "Tahmid Bin Taslim Rafi",
+    "category": "Developer Tools",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Fix the type errors in src/billing.ts without using any or @ts-ignore.",
+      "Optimize the /orders endpoint, it runs one query per line item.",
+      "Clean up lib/report_builder.py without changing its behaviour."
+    ],
+    "websiteURL": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+    "supportURL": "https://github.com/tahmidbintaslim/claude-code-polyglot/issues",
+    "privacyPolicyURL": "https://github.com/tahmidbintaslim/claude-code-polyglot/blob/HEAD/PRIVACY.md",
+    "logo": "./assets/logo.png",
+    "composerIcon": "./assets/icon.png"
+  }
+}

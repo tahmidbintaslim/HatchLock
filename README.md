@@ -141,6 +141,10 @@ Run `/hatchlock:doctor` to see exactly what is installed and what to add.
 
 Organizations that set `allowManagedHooksOnly` in managed settings disable plugin hooks, including HatchLock's. The skills and language servers still work.
 
+## ChatGPT and Codex
+
+The four portable skills (`tight-diff`, `optimize`, `architect`, `clean`) also ship as a skills-only HatchLock plugin for ChatGPT/Codex. OpenAI's directory does not accept hooks or LSP servers, so that version gives guidance only: no blocking and no compiler checks. Maintainers build it with `./scripts/build-openai-zip.sh`.
+
 ## Other editors
 
 `.cursor/rules/hatchlock-tight-diff.mdc` carries the same rules for Cursor and Windsurf (advisory only; no hooks).
@@ -154,6 +158,10 @@ Organizations that set `allowManagedHooksOnly` in managed settings disable plugi
 ```bash
 claude plugin validate . --strict
 ```
+
+## Privacy
+
+HatchLock collects and sends no data. See [PRIVACY.md](PRIVACY.md).
 
 ## Support
 

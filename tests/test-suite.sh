@@ -157,6 +157,33 @@ echo "  [PASS] No personal branding, stale names, sponsored output, or duplicate
 ! grep -niE '\bclaude\b' skills/{tight-diff,optimize,architect,clean}/SKILL.md || fail "provider-specific wording in portable skills"
 echo "  [PASS] Portable skills are provider-neutral"
 
+# OpenAI / ChatGPT skills-only package
+CODEX=.codex-plugin/plugin.json
+jq -e . "$CODEX" >/dev/null || fail "invalid $CODEX"
+[[ "$(jq -r .version "$CODEX")" == "$(jq -r .version .claude-plugin/plugin.json)" ]] || fail "codex/claude versions differ"
+[[ "$(jq -r .name "$CODEX")" == "hatchlock" ]] || fail "codex name must be hatchlock"
+jq -e '.interface | (.displayName|length) <= 30 and (.shortDescription|length) <= 30
+  and (.defaultPrompt|length) <= 3 and all(.defaultPrompt[]; length <= 128)
+  and has("longDescription") and has("developerName") and has("category") and has("capabilities")
+  and has("logo") and has("composerIcon") and has("privacyPolicyURL") and has("supportURL")' "$CODEX" >/dev/null \
+  || fail "codex interface fields missing or too long"
+[[ -f PRIVACY.md ]] || fail "PRIVACY.md missing"
+PKG="$TMP_DIR/pkg"; mkdir -p "$PKG"
+cp -R .codex-plugin skills scripts README.md LICENSE PRIVACY.md "$PKG/"
+mkdir -p "$PKG/assets"
+python3 -c 'import sys,zlib,struct
+def c(t,d): return struct.pack(">I",len(d))+t+d+struct.pack(">I",zlib.crc32(t+d))
+open(sys.argv[1],"wb").write(b"\x89PNG\r\n\x1a\n"+c(b"IHDR",struct.pack(">IIBBBBB",64,64,8,2,0,0,0))+c(b"IDAT",zlib.compress(b"\0"*(64*3+1)*64))+c(b"IEND",b""))' "$PKG/assets/icon.png"
+cp "$PKG/assets/icon.png" "$PKG/assets/logo.png"
+"$PKG/scripts/build-openai-zip.sh" >/dev/null || fail "build-openai-zip.sh failed"
+LIST=$(unzip -Z1 "$PKG/dist/hatchlock-openai.zip")
+grep -qx '.codex-plugin/plugin.json' <<<"$LIST" || fail "zip lacks .codex-plugin/plugin.json"
+grep -qx 'skills/tight-diff/SKILL.md' <<<"$LIST" || fail "zip lacks tight-diff skill"
+! grep -E '^(hooks/|scripts/|skills/doctor/|\.lsp\.json|\.claude-plugin/)' <<<"$LIST" || fail "zip contains Claude-only parts"
+rm "$PKG/assets/logo.png"
+! "$PKG/scripts/build-openai-zip.sh" >/dev/null 2>&1 || fail "build must fail without icons"
+echo "  [PASS] OpenAI skills-only package builds and excludes hooks, LSP, doctor"
+
 # 4. Doctor
 ./scripts/lsp-doctor.sh >/dev/null
 echo "  [PASS] lsp-doctor.sh executed cleanly"

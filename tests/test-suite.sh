@@ -15,13 +15,20 @@ done
 # 2. Plugin loader rules
 [[ "$(jq -r .name .claude-plugin/plugin.json)" == "hatchlock" ]] || fail "plugin name must be 'hatchlock'"
 jq -e 'has("hooks") | not' .claude-plugin/plugin.json >/dev/null || fail "plugin.json must not declare hooks"
-[[ "$(jq 'keys | length' .lsp.json)" -eq 18 ]] \
-  || fail ".lsp.json must define 18 servers"
+# Only LSP servers missing from the official marketplace are bundled.
+[[ "$(jq -c 'keys' .lsp.json)" == '["bash","dart","elixir","r","terraform","zig"]' ]] \
+  || fail ".lsp.json must define exactly the 6 unique servers"
+# claude plugin validate does not read .lsp.json; one unknown key drops the whole file.
+BAD=$(jq -r 'to_entries[] | .key as $k | .value | keys[]
+  | select(IN("command","args","transport","env","initializationOptions","settings","workspaceFolder",
+      "startupTimeout","shutdownTimeout","requestTimeout","restartOnCrash","maxRestarts","diagnostics",
+      "extensionToLanguage") | not) | "\($k).\(.)"' .lsp.json)
+[[ -z "$BAD" ]] || fail "unknown .lsp.json keys: $BAD"
 for skill in tight-diff optimize architect clean doctor; do
   head -n 1 "skills/$skill/SKILL.md" | grep -qx -- '---' || fail "skills/$skill/SKILL.md missing frontmatter"
   grep -q "^name: $skill$" "skills/$skill/SKILL.md" || fail "skills/$skill/SKILL.md name mismatch"
 done
-echo "  [PASS] Plugin manifest, 18 LSP servers, and 5 skills are well-formed"
+echo "  [PASS] Plugin manifest, 6 LSP servers, and 5 skills are well-formed"
 
 # 3. Fixtures
 TMP_DIR=$(mktemp -d)

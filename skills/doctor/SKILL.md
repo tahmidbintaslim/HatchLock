@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Audits locally installed LSP binaries and compiler toolchains across all 18 supported programming languages and prints 1-line installation commands for missing tools.
+description: Audits the 6 bundled LSP servers and the compilers used by the edit checks, and lists the official LSP plugins for other languages.
 when_to_use: When the user runs /hatchlock:doctor, asks which language servers are installed, or troubleshoots LSP attachment in Claude Code.
 effort: low
 ---

@@ -1,103 +1,32 @@
 {
-  "typescript": {
-    "command": "typescript-language-server",
-    "args": ["--stdio"],
-    "extensionToLanguage": {
-      ".ts": "typescript",
-      ".tsx": "typescriptreact",
-      ".js": "javascript",
-      ".jsx": "javascriptreact",
-      ".mjs": "javascript",
-      ".cjs": "javascript",
-      ".vue": "vue"
-    },
-    "initializationOptions": {
-      "preferences": {
-        "quotePreference": "single",
-        "importModuleSpecifierPreference": "relative",
-        "includeInlayParameterNameHints": "all"
-      }
-    }
-  },
-  "python": {
-    "command": "pyright-langserver",
-    "args": ["--stdio"],
-    "extensionToLanguage": {
-      ".py": "python",
-      ".pyi": "python"
-    },
-    "initializationOptions": {
-      "analysis": {
-        "autoSearchPaths": true,
-        "useLibraryCodeForTypes": true,
-        "typeCheckingMode": "strict"
-      }
-    }
-  },
-  "rust": {
-    "command": "rust-analyzer",
-    "extensionToLanguage": { ".rs": "rust" }
-  },
-  "go": {
-    "command": "gopls",
-    "args": ["serve"],
-    "extensionToLanguage": { ".go": "go" }
-  },
-  "cpp": {
-    "command": "clangd",
-    "extensionToLanguage": {
-      ".c": "c",
-      ".cpp": "cpp",
-      ".cc": "cpp",
-      ".h": "c",
-      ".hpp": "cpp"
-    }
-  },
   "zig": {
     "command": "zls",
-    "extensionToLanguage": { ".zig": "zig" }
-  },
-  "java": {
-    "command": "jdtls",
-    "extensionToLanguage": { ".java": "java" }
-  },
-  "csharp": {
-    "command": "csharp-ls",
-    "extensionToLanguage": { ".cs": "csharp" }
-  },
-  "php": {
-    "command": "intelephense",
-    "args": ["--stdio"],
-    "extensionToLanguage": { ".php": "php" }
-  },
-  "ruby": {
-    "command": "ruby-lsp",
-    "extensionToLanguage": { ".rb": "ruby" }
+    "extensionToLanguage": {
+      ".zig": "zig"
+    }
   },
   "elixir": {
     "command": "elixir-ls",
-    "extensionToLanguage": { ".ex": "elixir", ".exs": "elixir" }
-  },
-  "swift": {
-    "command": "sourcekit-lsp",
-    "extensionToLanguage": { ".swift": "swift" }
-  },
-  "kotlin": {
-    "command": "kotlin-language-server",
-    "extensionToLanguage": { ".kt": "kotlin", ".kts": "kotlin" }
+    "extensionToLanguage": {
+      ".ex": "elixir",
+      ".exs": "elixir"
+    }
   },
   "dart": {
     "command": "dart",
-    "args": ["language-server", "--protocol=lsp"],
-    "extensionToLanguage": { ".dart": "dart" }
-  },
-  "lua": {
-    "command": "lua-language-server",
-    "extensionToLanguage": { ".lua": "lua" }
+    "args": [
+      "language-server",
+      "--protocol=lsp"
+    ],
+    "extensionToLanguage": {
+      ".dart": "dart"
+    }
   },
   "bash": {
     "command": "bash-language-server",
-    "args": ["start"],
+    "args": [
+      "start"
+    ],
     "extensionToLanguage": {
       ".sh": "shellscript",
       ".bash": "shellscript",
@@ -106,12 +35,24 @@
   },
   "terraform": {
     "command": "terraform-ls",
-    "args": ["serve"],
-    "extensionToLanguage": { ".tf": "terraform", ".tfvars": "terraform" }
+    "args": [
+      "serve"
+    ],
+    "extensionToLanguage": {
+      ".tf": "terraform",
+      ".tfvars": "terraform"
+    }
   },
   "r": {
     "command": "R",
-    "args": ["--slave", "-e", "languageserver::run()"],
-    "extensionToLanguage": { ".r": "r", ".R": "r" }
+    "args": [
+      "--slave",
+      "-e",
+      "languageserver::run()"
+    ],
+    "extensionToLanguage": {
+      ".r": "r",
+      ".R": "r"
+    }
   }
 }

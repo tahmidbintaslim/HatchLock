@@ -73,7 +73,7 @@ post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
 post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
 printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
 post 0 "TS type errors deferred to Stop check" "$TMP_DIR/typeerr.ts"
-mkdir -p "$TMP_DIR/my dir" && printf 'echo ok\n' > "$TMP_DIR/my dir/ok.sh"
+mkdir -p "$TMP_DIR/my dir" && printf '#!/usr/bin/env bash\necho ok\n' > "$TMP_DIR/my dir/ok.sh"
 post 0 "Path with a space"            "$TMP_DIR/my dir/ok.sh"
 cp "$TMP_DIR/broken.sh" "$OUT_DIR/broken.sh"
 post 0 "File outside project skipped" "$OUT_DIR/broken.sh"
@@ -81,6 +81,7 @@ post 0 "Path with .. skipped"         "$TMP_DIR/../$(basename "$OUT_DIR")/broken
 
 # Huge checker output is truncated (stub shellcheck first on PATH)
 mkdir -p "$TMP_DIR/bin"
+# shellcheck disable=SC2016 # literal stub script body
 printf '#!/usr/bin/env bash\nfor i in $(seq 5000); do echo "error line $i: something is wrong here"; done\nexit 1\n' > "$TMP_DIR/bin/shellcheck"
 chmod +x "$TMP_DIR/bin/shellcheck"
 PATH="$TMP_DIR/bin:$PATH" post 2 "Huge output still fails" "$TMP_DIR/my dir/ok.sh"

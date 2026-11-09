@@ -1,12 +1,12 @@
 ---
 name: clean
 description: De-bloats spaghetti code, collapses speculative abstractions, flattens nested conditionals, and removes dead code while preserving exact behavior and types.
-when_to_use: When the user asks to clean up code, simplify a file, remove bloat, flatten nested if/else blocks, review a PR for code quality, or runs /polyglot:clean.
+when_to_use: When the user asks to clean up code, simplify a file, remove bloat, flatten nested if/else blocks, review a PR for code quality, or runs /hatchlock:clean.
 argument-hint: "[file-path-or-module]"
 effort: medium
 ---
 
-# Polyglot Clean: Anti-Bloat Refactoring Engine
+# HatchLock Clean: Anti-Bloat Refactoring Engine
 
 Target scope: **$ARGUMENTS**
 

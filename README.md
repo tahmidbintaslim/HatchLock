@@ -1,26 +1,26 @@
-# 🌐 claude-code-polyglot
+# 🔒 HatchLock for Claude Code
 
-**18-Language Native LSP Code Intelligence, Self-Healing Compiler Loops, and Andrej Karpathy Engineering Skills for Claude Code.**
+**18-Language Native LSP Code Intelligence, Self-Healing Compiler Loops, and Minimal-Diff Engineering Skills for Claude Code.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude_Code-Plugin_&_Marketplace-blueviolet)](https://github.com/tahmidbintaslim/claude-code-polyglot)
 [![Languages: 18](https://img.shields.io/badge/LSP_Languages-18_Supported-success)](#supported-languages)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tahmid)
 
-Stop AI spaghetti code, premature abstractions, and silent cross-file type breaks. **`claude-code-polyglot`** combines **18 native Language Server Protocol (`.lsp.json`) bridges**, a **deterministic `PostToolUse` compiler loop (`Exit Code 2`)**, and **Andrej Karpathy's minimalist coding & AI/systems optimization principles** in a single 1-command install.
+Stop AI spaghetti code, premature abstractions, and silent cross-file type breaks. **HatchLock** combines **18 native Language Server Protocol (`.lsp.json`) bridges**, a **deterministic `PostToolUse` compiler loop (`Exit Code 2`)**, and **minimal-diff coding & systems optimization skills** in a single 1-command install.
 
 ---
 
-## ⚡ Why `polyglot` Beats Static `CLAUDE.md` Prompts
+## ⚡ Why HatchLock Beats Static `CLAUDE.md` Prompts
 
-| Capability | Raw Claude Code | Static `CLAUDE.md` Prompts | `claude-code-polyglot` |
+| Capability | Raw Claude Code | Static `CLAUDE.md` Prompts | HatchLock |
 | :--- | :---: | :---: | :---: |
-| **Karpathy 4 Coding Principles** | ❌ | ✅ | ✅ Auto-enforced (`karpathy-core`) |
+| **Minimal-diff coding principles** | ❌ | ✅ | ✅ Auto-enforced (`tight-diff`) |
 | **Native 18-Language LSP Graph** | ❌ | ❌ | ✅ Pre-wired in `.lsp.json` |
 | **Self-Healing Compiler Loop** | ❌ | ❌ | ✅ `PostToolUse` Hook (`Exit Code 2`) |
 | **Blocks `@ts-ignore` / `as any` / `# type: ignore`** | ❌ | ⚠️ Prompt only | ✅ Mechanically blocked by hook |
-| **AI/LLM & SQL Performance Optimization** | ❌ | ❌ | ✅ `/polyglot:optimize` |
-| **Data-First System Architecture & ADRs** | ❌ | ❌ | ✅ `/polyglot:architect` |
+| **AI/LLM & SQL Performance Optimization** | ❌ | ❌ | ✅ `/hatchlock:optimize` |
+| **Data-First System Architecture & ADRs** | ❌ | ❌ | ✅ `/hatchlock:architect` |
 
 ---
 
@@ -29,7 +29,7 @@ Stop AI spaghetti code, premature abstractions, and silent cross-file type break
 ### Option 1: Install via Claude Code Marketplace (Recommended)
 ```bash
 claude plugin marketplace add tahmidbintaslim/claude-code-polyglot
-claude plugin install polyglot@polyglot-marketplace
+claude plugin install hatchlock@hatchlock-marketplace
 ```
 
 ### Option 2: Run Directly from a Local Clone
@@ -42,11 +42,11 @@ claude --plugin-dir ./claude-code-polyglot
 
 ## 🛠️ Included Slash Commands & Skills
 
-- **Always-On (`karpathy-core`):** Automatically enforces Think Before Coding, Simplicity First (200-to-50 line rule), LSP Symbol Traversal before Edits, and Goal-Driven Compiler Verification.
-- **`/polyglot:optimize [target]`:** First-principles latency, memory, SQL N+1, and AI/LLM token/KV-cache optimization (`llm.c` / `nanoGPT` philosophy).
-- **`/polyglot:architect [feature]`:** Data-first schema modeling, boundary validation, and 3-tier architecture trade-off matrices.
-- **`/polyglot:clean [file]`:** Strips single-use wrappers (Rule of Three) and flattens nested control flow to guard clauses.
-- **`/polyglot:doctor`:** Audits your machine for all 18 LSP binaries and prints 1-line install commands for missing tools.
+- **Always-On (`tight-diff`):** Automatically enforces Think Before Coding, Simplicity First (200-to-50 line rule), LSP Symbol Traversal before Edits, and Goal-Driven Compiler Verification.
+- **`/hatchlock:optimize [target]`:** First-principles latency, memory, SQL N+1, and AI/LLM token/KV-cache optimization (`llm.c`-style).
+- **`/hatchlock:architect [feature]`:** Data-first schema modeling, boundary validation, and 3-tier architecture trade-off matrices.
+- **`/hatchlock:clean [file]`:** Strips single-use wrappers (Rule of Three) and flattens nested control flow to guard clauses.
+- **`/hatchlock:doctor`:** Audits your machine for all 18 LSP binaries and prints 1-line install commands for missing tools.
 
 ---
 
@@ -83,9 +83,13 @@ Missing toolchains are skipped silently — the hook never blocks on a tool you 
 
 ---
 
+## Inspired by
+
+The `tight-diff` principles are adapted from [Andrej Karpathy's January 2026 post on LLM coding pitfalls](https://x.com/karpathy/status/2015883857489522876). HatchLock is an independent project and is not affiliated with or endorsed by Andrej Karpathy or Anthropic.
+
 ## ☕ Support & Sponsorship
 
-If `claude-code-polyglot` saves you hours of debugging AI-generated type breaks and spaghetti abstractions, consider supporting ongoing maintenance:
+If HatchLock saves you hours of debugging AI-generated type breaks and spaghetti abstractions, consider supporting ongoing maintenance:
 
 - ⭐ **Star this repository** on GitHub to help more developers discover it!
 - ☕ [Buy Me a Coffee](https://buymeacoffee.com/tahmid)

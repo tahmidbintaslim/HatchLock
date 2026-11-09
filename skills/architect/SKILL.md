@@ -1,12 +1,12 @@
 ---
 name: architect
 description: Designs lean, data-first software architectures, database schemas, API contracts, and Architecture Decision Records (ADRs) with explicit trade-off matrices. Use when planning new features, designing system architecture, evaluating tech stacks, modeling schemas, or refactoring module boundaries.
-when_to_use: When the user asks to architect a system, design a feature or database schema, compare architectural options, write an ADR, decouple modules, or runs /polyglot:architect.
+when_to_use: When the user asks to architect a system, design a feature or database schema, compare architectural options, write an ADR, decouple modules, or runs /hatchlock:architect.
 argument-hint: "[system, feature, or architectural decision]"
 effort: high
 ---
 
-# Polyglot Architect: Data-First System Design & Trade-Off Engine
+# HatchLock Architect: Data-First System Design & Trade-Off Engine
 
 Target architecture scope: **$ARGUMENTS**
 
@@ -17,7 +17,7 @@ Target architecture scope: **$ARGUMENTS**
 
 ## Step 2: Mandatory 3-Tier Trade-Off Matrix
 Compare three concrete options before recommending one:
-- **Option A (Karpathy Minimal Baseline):** Single module / in-process / existing DB table (~50-150 LOC, zero new infra, up to ~100 req/s).
+- **Option A (Minimal Baseline):** Single module / in-process / existing DB table (~50-150 LOC, zero new infra, up to ~100 req/s).
 - **Option B (Pragmatic Production — Default):** Modular monolith + Postgres + background worker/Redis (strict boundary separation, up to ~10,000 req/s).
 - **Option C (High-Scale Distributed):** Dedicated service / event stream / ClickHouse or Kafka (50,000+ req/s, high operational overhead).
 

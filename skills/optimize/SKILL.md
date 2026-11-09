@@ -1,14 +1,14 @@
 ---
 name: optimize
-description: Optimizes application performance, LLM/AI pipelines, database queries, memory allocations, and hot-path algorithms using Andrej Karpathy's first-principles systems methodology. Use when profiling bottlenecks, reducing latency or token costs, eliminating N+1 queries, or speeding up slow code.
-when_to_use: When the user asks to optimize code, reduce latency, speed up an endpoint or script, optimize LLM prompts or token usage, fix N+1 SQL queries, reduce memory footprint, or runs /polyglot:optimize.
+description: Optimizes application performance, LLM/AI pipelines, database queries, memory allocations, and hot-path algorithms using first-principles systems methodology. Use when profiling bottlenecks, reducing latency or token costs, eliminating N+1 queries, or speeding up slow code.
+when_to_use: When the user asks to optimize code, reduce latency, speed up an endpoint or script, optimize LLM prompts or token usage, fix N+1 SQL queries, reduce memory footprint, or runs /hatchlock:optimize.
 argument-hint: "[file-path, endpoint, query, or LLM pipeline]"
 effort: high
 ---
 
-# Polyglot Optimize: First-Principles Systems & AI Performance
+# HatchLock Optimize: First-Principles Systems & AI Performance
 
-Apply Andrej Karpathy's `llm.c` and `nanoGPT` performance philosophy: **strip away opaque framework layers, respect the hardware and network hierarchy, measure before and after, and maximize throughput per line of code.**
+Apply a first-principles, `llm.c`-style performance philosophy: **strip away opaque framework layers, respect the hardware and network hierarchy, measure before and after, and maximize throughput per line of code.**
 
 Target scope (if specified): **$ARGUMENTS**
 
@@ -16,7 +16,7 @@ Target scope (if specified): **$ARGUMENTS**
 1. **Classify the Bottleneck:** Determine whether the target is **I/O & Network Bound** (N+1 queries, sequential network calls), **LLM / Token Bound** (bloated prompts, broken prefix caching), **Memory Bound** ($O(N^2)$ copies, unstreamed payloads), or **CPU Bound** (linear scans, unvectorized loops).
 2. **State the Baseline:** Document current Time Complexity $O(\cdot)$, Space Complexity $O(\cdot)$, and I/O round-trip count before modifying code.
 
-## Phase 2: AI & LLM Systems Optimization (`nanoGPT` / `llm.c` Standard)
+## Phase 2: AI & LLM Systems Optimization (`llm.c`-style)
 1. **Radical Framework De-Abstraction:** Replace multi-layer orchestration wrappers (heavy LangChain/LlamaIndex abstractions) with flat, debuggable 40-line native SDK calls where prompts, retries, and tool schemas are directly visible.
 2. **KV-Cache & Prefix Caching Sympathy:** Place static system instructions, tool definitions, and reference context at the **exact start** of the prompt, and append dynamic per-request variables at the **very end** to maximize prefix cache hit rates.
 3. **Concurrency & Streaming:** Execute independent LLM/embedding calls concurrently (`Promise.all`, `asyncio.gather`, `tokio::join!`) and stream user-facing responses to minimize Time-To-First-Token (TTFT).

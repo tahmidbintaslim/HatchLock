@@ -2,7 +2,7 @@
 set -uo pipefail
 
 echo "========================================================================"
-echo "  Polyglot 18-Language LSP & Compiler Toolchain Health Audit"
+echo "  HatchLock LSP & Compiler Toolchain Health Audit"
 echo "========================================================================"
 
 INSTALLED=0
@@ -41,6 +41,5 @@ echo "------------------------------------------------------------------------"
 echo "  Active LSP Servers Ready: $INSTALLED / $TOTAL"
 echo "  (Note: Claude Code only starts servers for files touched in session)"
 echo "========================================================================"
-echo "  Star on GitHub:    https://github.com/tahmidbintaslim/claude-code-polyglot"
-echo "  Buy Me a Coffee:   https://buymeacoffee.com/tahmid"
+echo "  Docs: https://github.com/tahmidbintaslim/claude-code-polyglot"
 echo "========================================================================"

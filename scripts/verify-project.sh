@@ -55,7 +55,7 @@ fi
 
 FEEDBACK=$(head -n 40 <<<"$REPORT" | head -c 7800)
 {
-  echo "[Polyglot Project Check] Project-wide checks failed for files changed this session:"
+  echo "[HatchLock Project Check] Project-wide checks failed for files changed this session:"
   echo "$FEEDBACK"
   [[ "$FEEDBACK" != "${REPORT%$'\n'}" ]] && echo "… (truncated)"
 } >&2

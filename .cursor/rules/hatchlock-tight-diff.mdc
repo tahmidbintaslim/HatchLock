@@ -1,13 +1,13 @@
 ---
-description: Andrej Karpathy Minimalist Coding Principles, Clean Architecture, and Systems Optimization Guardrails
+description: HatchLock minimal-diff, type-safety, and performance guardrails
 globs: "**/*"
 alwaysApply: true
 ---
 
-# Polyglot & Karpathy Engineering Standard
+# HatchLock Engineering Standard
 
 1. **Think Before Coding:** Surface assumptions and ambiguities upfront. Push back if a simpler design exists.
-2. **Simplicity First (200-to-50 Line Rule):** Write the minimum code required. Never create abstractions, wrappers, or factories for logic used fewer than 3 times. Keep maximum indentation depth to 2 using guard clauses.
+2. **Simplicity First:** Write the minimum code required. Never create abstractions, wrappers, or factories for logic used fewer than 3 times. Keep maximum indentation depth to 2 using guard clauses.
 3. **Surgical Changes:** Inspect resolved symbol types and call sites before editing. Touch only the lines required by the prompt.
 4. **Zero Compiler Suppression:** Never add `@ts-ignore`, `as any`, `# type: ignore`, `@phpstan-ignore`, or `#[allow(dead_code)]`. Fix the root type mismatch.
 5. **First-Principles Performance:** Avoid N+1 queries, $O(N^2)$ nested array scans, and heavy orchestration wrappers when flat SDK/SQL calls suffice.

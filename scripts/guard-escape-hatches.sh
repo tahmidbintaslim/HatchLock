@@ -15,12 +15,12 @@ esac
 # Write sends .content, Edit sends .new_string: scan only the text being added.
 TEXT=$(jq -r '.tool_input.content // .tool_input.new_string // empty' <<<"$PAYLOAD")
 MATCHES=$(grep -En '(@ts-ignore|@ts-expect-error|\bas any\b|:\s*any\b|#\s*type:\s*ignore|@phpstan-ignore|#\[allow\(dead_code\)\]|//\s*nolint)' <<<"$TEXT" \
-  | grep -v 'polyglot-allow:' || true)
+  | grep -v 'hatchlock-allow:' || true)
 [[ -z "$MATCHES" ]] && exit 0
 
 {
-  echo "[Polyglot Guardrail] Blocked type-checker suppression in $FILE_PATH:"
+  echo "[HatchLock Guardrail] Blocked type-checker suppression in $FILE_PATH:"
   head -n 10 <<<"$MATCHES"
-  echo "Fix the underlying type, or add \"polyglot-allow: <reason>\" on the same line if suppression is truly required."
+  echo "Fix the underlying type, or add \"hatchlock-allow: <reason>\" on the same line if suppression is truly required."
 } >&2
 exit 2

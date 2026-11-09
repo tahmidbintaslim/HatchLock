@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "Running claude-code-polyglot automated verification suite..."
+echo "Running HatchLock automated verification suite..."
 
 fail() { echo "  [FAIL] $*"; exit 1; }
 
@@ -13,11 +13,11 @@ for json_file in .claude-plugin/plugin.json .claude-plugin/marketplace.json .lsp
 done
 
 # 2. Plugin loader rules
-[[ "$(jq -r .name .claude-plugin/plugin.json)" == "polyglot" ]] || fail "plugin name must be 'polyglot'"
+[[ "$(jq -r .name .claude-plugin/plugin.json)" == "hatchlock" ]] || fail "plugin name must be 'hatchlock'"
 jq -e 'has("hooks") | not' .claude-plugin/plugin.json >/dev/null || fail "plugin.json must not declare hooks"
 [[ "$(jq 'keys | length' .lsp.json)" -eq 18 ]] \
   || fail ".lsp.json must define 18 servers"
-for skill in karpathy-core optimize architect clean doctor; do
+for skill in tight-diff optimize architect clean doctor; do
   head -n 1 "skills/$skill/SKILL.md" | grep -qx -- '---' || fail "skills/$skill/SKILL.md missing frontmatter"
   grep -q "^name: $skill$" "skills/$skill/SKILL.md" || fail "skills/$skill/SKILL.md name mismatch"
 done
@@ -56,7 +56,7 @@ printf 'if true; then\n' > "$TMP_DIR/broken.sh"
 # PreToolUse escape-hatch guard
 pre 2 "Write with @ts-ignore blocked"            "$(write_json "$TMP_DIR/bloat.ts" $'// @ts-ignore\nexport const x = 1;')"
 pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'const y = x as any;')"
-pre 0 "polyglot-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # polyglot-allow: stub lib')"
+pre 0 "hatchlock-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # hatchlock-allow: stub lib')"
 pre 0 "Non-source file (.md) not scanned"        "$(write_json "$TMP_DIR/notes.md" 'Never use @ts-ignore')"
 pre 0 "Clean TS write allowed"                   "$(write_json "$TMP_DIR/clean.ts" "$(cat "$TMP_DIR/clean.ts")")"
 
@@ -102,6 +102,13 @@ printf 'export const n: number = "s";\n' > "$REPO/a.ts"
 CLAUDE_PROJECT_DIR="$REPO" stop 2 "Changed .ts with tsc errors fed back" '{"stop_hook_active":false}'
 grep -q 'TS2322' "$TMP_DIR/stderr" || fail "tsc error missing from Stop feedback"
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "stop_hook_active: no loop"         '{"stop_hook_active":true}'
+
+# Branding & policy
+! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers . || fail "Karpathy branding outside README attribution"
+! grep -rniIE 'polyglot' --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude=README.md --exclude=test-suite.sh . | grep -v 'claude-code-polyglot' || fail "stale 'polyglot' name"
+! ./scripts/lsp-doctor.sh | grep -iE 'coffee|sponsor|polar' || fail "sponsored text in doctor output"
+jq -e '[.. | objects | has("version")] | any | not' .claude-plugin/marketplace.json >/dev/null || fail "version must live only in plugin.json"
+echo "  [PASS] No personal branding, stale names, sponsored output, or duplicate versions"
 
 # 4. Doctor
 ./scripts/lsp-doctor.sh >/dev/null

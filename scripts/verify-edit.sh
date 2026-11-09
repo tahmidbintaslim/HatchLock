@@ -65,7 +65,7 @@ esac
 # Hook feedback over 10k chars is replaced by a file pointer; stay well under.
 FEEDBACK=$(head -n 40 <<<"$OUTPUT" | head -c 7800)
 {
-  echo "[Polyglot Compiler Loop] Verification failed after editing $FILE_PATH:"
+  echo "[HatchLock Compiler Loop] Verification failed after editing $FILE_PATH:"
   echo "$FEEDBACK"
   [[ "$FEEDBACK" != "$OUTPUT" ]] && echo "… (truncated)"
 } >&2

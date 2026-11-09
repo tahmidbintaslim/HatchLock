@@ -1,11 +1,11 @@
 ---
 name: doctor
 description: Audits locally installed LSP binaries and compiler toolchains across all 18 supported programming languages and prints 1-line installation commands for missing tools.
-when_to_use: When the user runs /polyglot:doctor, asks which language servers are installed, or troubleshoots LSP attachment in Claude Code.
+when_to_use: When the user runs /hatchlock:doctor, asks which language servers are installed, or troubleshoots LSP attachment in Claude Code.
 effort: low
 ---
 
-# Polyglot Toolchain Doctor
+# HatchLock Toolchain Doctor
 
 Run the bundled diagnostic script and display its output verbatim to the user:
 

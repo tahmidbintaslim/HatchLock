@@ -32,7 +32,10 @@ case "${FILE_PATH##*.}" in
       OUTPUT=$(gofmt -e -l "$FILE_PATH" 2>&1 >/dev/null); STATUS=$?
     fi ;;
   c|cpp|cc|h|hpp)
-    if has clang; then OUTPUT=$(clang -fsyntax-only "$FILE_PATH" 2>&1); STATUS=$?; fi ;;
+    # Without a compile database, include paths are unknown and every file would fail.
+    if [[ -f "$ROOT/compile_commands.json" ]] && has clang-check; then
+      OUTPUT=$(clang-check -p "$ROOT" "$FILE_PATH" 2>&1); STATUS=$?
+    fi ;;
   zig)
     if has zig; then OUTPUT=$(zig ast-check "$FILE_PATH" 2>&1); STATUS=$?; fi ;;
   php)
@@ -43,7 +46,7 @@ case "${FILE_PATH##*.}" in
     if has luac; then OUTPUT=$(luac -p "$FILE_PATH" 2>&1); STATUS=$?; fi ;;
   sh|bash|zsh)
     if has shellcheck; then
-      OUTPUT=$(shellcheck "$FILE_PATH" 2>&1); STATUS=$?
+      OUTPUT=$(shellcheck -S warning "$FILE_PATH" 2>&1); STATUS=$?
     elif has bash; then
       OUTPUT=$(bash -n "$FILE_PATH" 2>&1); STATUS=$?
     fi ;;

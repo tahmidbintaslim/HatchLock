@@ -1,7 +1,7 @@
 {
   "name": "hatchlock",
   "version": "1.1.0",
-  "description": "Blocks type-checker escape hatches (@ts-ignore, as any, # type: ignore) before they land, gates edits on your local compilers across 18 languages, adds 6 LSP servers missing from the official set, and ships minimal-diff, optimization, and architecture skills.",
+  "description": "Blocks type-checker escape hatches (@ts-ignore, as any, # type: ignore) before they land, gates edits on your local compilers across 17 languages, adds 6 LSP servers missing from the official set, and ships minimal-diff, optimization, and architecture skills.",
   "author": {
     "name": "Tahmid Bin Taslim Rafi",
     "url": "https://tahmid.space"

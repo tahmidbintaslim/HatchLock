@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # stub scripts are written as literal single-quoted text
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -45,7 +46,7 @@ check() {
 }
 # Hook payloads built with jq so paths with spaces/quotes stay valid JSON.
 write_json() { jq -nc --arg f "$1" --arg c "${2:-}" '{tool_name:"Write",tool_input:{file_path:$f,content:$c}}'; }
-edit_json()  { jq -nc --arg f "$1" --arg n "$2" '{tool_name:"Edit",tool_input:{file_path:$f,old_string:"x",new_string:$n}}'; }
+edit_json()  { jq -nc --arg f "$1" --arg n "$2" --arg o "${3:-x}" '{tool_name:"Edit",tool_input:{file_path:$f,old_string:$o,new_string:$n}}'; }
 post() { check "$1" "$2" verify-edit.sh "$(write_json "$3")"; }
 pre()  { check "$1" "$2" guard-escape-hatches.sh "$3"; }
 
@@ -66,6 +67,15 @@ pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'c
 pre 0 "hatchlock-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # hatchlock-allow: stub lib')"
 pre 0 "Non-source file (.md) not scanned"        "$(write_json "$TMP_DIR/notes.md" 'Never use @ts-ignore')"
 pre 0 "Clean TS write allowed"                   "$(write_json "$TMP_DIR/clean.ts" "$(cat "$TMP_DIR/clean.ts")")"
+pre 0 "Existing suppression in Edit context kept" "$(edit_json "$TMP_DIR/a.ts" $'// @ts-ignore legacy\nfoo(1)' $'// @ts-ignore legacy\nfoo()')"
+printf 'x = f()  # type: ignore\n' > "$TMP_DIR/legacy.py"
+pre 0 "Write keeping a file's existing suppression" "$(write_json "$TMP_DIR/legacy.py" $'x = f()  # type: ignore\ny = 2')"
+pre 2 "@ts-nocheck blocked"                      "$(write_json "$TMP_DIR/b.ts" '// @ts-nocheck')"
+pre 2 "Record<string, any> blocked"              "$(edit_json "$TMP_DIR/a.ts" 'let m: Record<string, any> = {};')"
+pre 2 "# pyright: ignore blocked"                "$(edit_json "$TMP_DIR/a.py" 'x = f()  # pyright: ignore')"
+pre 0 "Python any() call allowed"                "$(edit_json "$TMP_DIR/a.py" 'd = {"k": any(vals)}')"
+pre 0 "'as any other' prose allowed"             "$(edit_json "$TMP_DIR/a.ts" '// use this as any other iterable')"
+pre 0 ".d.ts declarations skipped"               "$(write_json "$TMP_DIR/x.d.ts" 'declare const x: any;')"
 
 # PostToolUse per-file check
 post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
@@ -75,13 +85,16 @@ printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
 post 0 "TS type errors deferred to Stop check" "$TMP_DIR/typeerr.ts"
 mkdir -p "$TMP_DIR/my dir" && printf '#!/usr/bin/env bash\necho ok\n' > "$TMP_DIR/my dir/ok.sh"
 post 0 "Path with a space"            "$TMP_DIR/my dir/ok.sh"
+printf '#!/usr/bin/env bash\necho $1\n' > "$TMP_DIR/style.sh"
+post 0 "Shellcheck style notes are not failures" "$TMP_DIR/style.sh"
+printf '#include "project_header.h"\nint main(void) { return 0; }\n' > "$TMP_DIR/main.c"
+post 0 "C file with project headers not flagged without a compile db" "$TMP_DIR/main.c"
 cp "$TMP_DIR/broken.sh" "$OUT_DIR/broken.sh"
 post 0 "File outside project skipped" "$OUT_DIR/broken.sh"
 post 0 "Path with .. skipped"         "$TMP_DIR/../$(basename "$OUT_DIR")/broken.sh"
 
 # Huge checker output is truncated (stub shellcheck first on PATH)
 mkdir -p "$TMP_DIR/bin"
-# shellcheck disable=SC2016 # literal stub script body
 printf '#!/usr/bin/env bash\nfor i in $(seq 5000); do echo "error line $i: something is wrong here"; done\nexit 1\n' > "$TMP_DIR/bin/shellcheck"
 chmod +x "$TMP_DIR/bin/shellcheck"
 PATH="$TMP_DIR/bin:$PATH" post 2 "Huge output still fails" "$TMP_DIR/my dir/ok.sh"
@@ -101,7 +114,7 @@ REPO="$TMP_DIR/repo"; mkdir -p "$REPO/node_modules/.bin"
 git -C "$REPO" init -q
 printf 'node_modules/\n' > "$REPO/.gitignore"
 echo '{}' > "$REPO/tsconfig.json"
-printf '#!/usr/bin/env bash\necho "src/a.ts(1,7): error TS2322: Type string is not assignable to number."\nexit 2\n' > "$REPO/node_modules/.bin/tsc"
+printf '#!/usr/bin/env bash\necho "$*" > "%s/tsc-args"\necho "src/a.ts(1,7): error TS2322: Type string is not assignable to number."\nexit 2\n' "$TMP_DIR" > "$REPO/node_modules/.bin/tsc"
 chmod +x "$REPO/node_modules/.bin/tsc"
 git -C "$REPO" add -A && git -C "$REPO" -c user.email=t@t -c user.name=t commit -qm init
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "Clean git tree: no project check"  '{"stop_hook_active":false}'
@@ -109,7 +122,29 @@ CLAUDE_PROJECT_DIR="$OUT_DIR" stop 0 "Non-git dir: no project check"   '{"stop_h
 printf 'export const n: number = "s";\n' > "$REPO/a.ts"
 CLAUDE_PROJECT_DIR="$REPO" stop 2 "Changed .ts with tsc errors fed back" '{"stop_hook_active":false}'
 grep -q 'TS2322' "$TMP_DIR/stderr" || fail "tsc error missing from Stop feedback"
+if ! grep -q -- '--tsBuildInfoFile' "$TMP_DIR/tsc-args" || grep -q -- "--tsBuildInfoFile $REPO" "$TMP_DIR/tsc-args"; then
+  fail "tsc must keep its build-info file outside the repo"
+fi
+echo "  [PASS] tsc build-info kept out of the repo"
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "stop_hook_active: no loop"         '{"stop_hook_active":true}'
+
+# Monorepo: project dir is a subdirectory of the git repo
+MONO="$TMP_DIR/mono"; mkdir -p "$MONO/infra/app/.terraform" "$MONO/infra/svc" "$TMP_DIR/bin2"
+git -C "$MONO" init -q && git -C "$MONO" -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
+printf '#!/usr/bin/env bash\nd=${1#-chdir=}\n[[ -d "$d" ]] || { echo "no such dir $d"; exit 1; }\n[[ -d "$d/.terraform" ]] || { echo "not initialized: $d"; exit 1; }\n' > "$TMP_DIR/bin2/terraform"
+printf '#!/usr/bin/env bash\necho "javac: cannot find symbol"; exit 1\n' > "$TMP_DIR/bin2/javac"
+chmod +x "$TMP_DIR/bin2/"*
+# Tracked-then-modified: git diff reports these relative to the repo top level.
+echo 'resource "x" "y" {}' > "$MONO/infra/app/main.tf"
+git -C "$MONO" add -A && git -C "$MONO" -c user.email=t@t -c user.name=t commit -qm tf
+echo 'resource "x" "z" {}' > "$MONO/infra/app/main.tf"
+PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "Monorepo subdir paths resolved" '{"stop_hook_active":false}'
+echo 'resource "x" "y" {}' > "$MONO/infra/svc/main.tf"
+PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "terraform skipped before init" '{"stop_hook_active":false}'
+rm -rf "$MONO/infra/svc" "$MONO/infra/app"
+touch "$MONO/infra/pom.xml"; echo 'class A {}' > "$MONO/infra/A.java"
+PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "javac skipped in Maven/Gradle projects" '{"stop_hook_active":false}'
+! grep -n 'mapfile' scripts/*.sh || fail "mapfile is unavailable in macOS bash 3.2"
 
 # Branding & policy
 ! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers . || fail "Karpathy branding outside README attribution"

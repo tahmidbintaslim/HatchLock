@@ -1,6 +1,6 @@
 # 🔒 HatchLock for Claude Code
 
-**Locks the type-checker escape hatches before they land.** HatchLock stops Claude Code from silencing your compiler with `@ts-ignore`, `as any`, `# type: ignore`, `//nolint` and friends, checks every edit against your own local compilers across 18 languages, and adds minimal-diff, optimization and architecture skills.
+**Locks the type-checker escape hatches before they land.** HatchLock stops Claude Code from silencing your compiler with `@ts-ignore`, `as any`, `# type: ignore`, `//nolint` and friends, checks every edit against your own local compilers across 17 languages, and adds minimal-diff, optimization and architecture skills.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tahmid)
@@ -49,9 +49,15 @@ HatchLock checks code at three points:
 
 ### Blocked escape hatches
 
-`@ts-ignore` · `@ts-expect-error` · `as any` · `: any` · `# type: ignore` · `@phpstan-ignore` · `#[allow(dead_code)]` · `// nolint`
+| Language | Blocked |
+| :--- | :--- |
+| TypeScript / JS / Vue | `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `eslint-disable`, `as any`, `: any`, `<any>`, `Record<string, any>` |
+| Python | `# type: ignore`, `# pyright: ignore` |
+| PHP | `@phpstan-ignore`, `@psalm-suppress` |
+| Rust | `#[allow(dead_code)]`, `#[allow(unused…)]` |
+| Go | `//nolint` |
 
-Scanned in source files only (`.ts .tsx .js .jsx .mjs .cjs .vue .py .pyi .rs .go .c .cpp .cc .h .hpp .zig .java .cs .php .rb .ex .exs .swift .kt .kts .dart .lua`), never in docs.
+Only **new** suppressions are blocked: ones already in the code Claude is editing are left alone. `.d.ts` declaration files are skipped.
 
 **Genuinely need one?** Put `hatchlock-allow: <reason>` on the same line:
 
@@ -65,13 +71,13 @@ Everything runs locally with tools you already have installed. A missing tool me
 
 | Language | After each edit (that file) | End of turn (project) |
 | :--- | :--- | :--- |
-| TypeScript / JS / Vue | — | `node_modules/.bin/tsc --noEmit --incremental` (needs `tsconfig.json`) |
+| TypeScript / JS / Vue | — | `node_modules/.bin/tsc --noEmit --incremental` (needs `tsconfig.json`; build info kept outside the repo) |
 | Python | `pyright <file>` → fallback `python3` compile check | — |
 | Rust | — | `cargo check` (needs `Cargo.toml`) |
 | Go | `gofmt -e` | `go vet ./...` (needs `go.mod`) |
-| C / C++ | `clang -fsyntax-only` | — |
+| C / C++ | `clang-check -p` (only with `compile_commands.json`) | — |
 | Zig | `zig ast-check` | — |
-| Java | — | `javac -Xlint:all` on changed files (output to a temp dir) |
+| Java | — | `javac -Xlint:all` on changed files, output to a temp dir (skipped for Maven/Gradle projects) |
 | C# | — | `dotnet build --no-restore` (needs `*.csproj`) |
 | PHP | `php -l` | — |
 | Ruby | `ruby -c` | — |
@@ -79,8 +85,8 @@ Everything runs locally with tools you already have installed. A missing tool me
 | Swift | — | `swift build` (needs `Package.swift`) |
 | Dart | `dart analyze <file>` | — |
 | Lua | `luac -p` | — |
-| Bash / Shell | `shellcheck` → fallback `bash -n` | — |
-| Terraform | — | `terraform validate` in changed directories |
+| Bash / Shell | `shellcheck -S warning` → fallback `bash -n` | — |
+| Terraform | — | `terraform validate` in changed, initialized directories |
 | R | `parse(file=…)` | — |
 | Kotlin | — | — (no check; `kotlinc` is too slow for a hook) |
 

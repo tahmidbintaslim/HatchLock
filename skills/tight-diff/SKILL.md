@@ -8,7 +8,7 @@ effort: high
 
 # Tight Diff: Minimal, Compiler-Verified Changes
 
-Hard rule first: **never silence the type checker.** `@ts-ignore`, `@ts-expect-error`, `as any`, `: any`, `# type: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `// nolint` are blocked before the write lands. Fix the type. If suppression is truly unavoidable (e.g. a test asserting a type error), put `hatchlock-allow: <reason>` on the same line.
+Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` are blocked before the write lands. Fix the type. If suppression is truly unavoidable (e.g. a test asserting a type error), put `hatchlock-allow: <reason>` on the same line.
 
 If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
 

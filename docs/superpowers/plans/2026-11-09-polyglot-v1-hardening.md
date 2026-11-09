@@ -212,3 +212,27 @@ Logic: exit 0 if `stop_hook_active` is true, if `ROOT` is not a git work tree, o
 9. Per-language opt-out via `userConfig` (e.g. `disabledLanguages`) read in all three scripts.
 10. Doctor detects repo languages from file extensions and prints only relevant installs.
 11. Submissions: claude.ai/directory/manage (paid plan, public repo, "Plugin bundle"); awesome-claude-code issue form once repo is ≥ 14 days old or ≥ 100 stars; MCP Registry not applicable (no MCP server).
+
+---
+
+## Scope S4 — OpenAI / ChatGPT (skills-only package)
+
+Added 2026-11-09 after the product was renamed **HatchLock** (plugin id `hatchlock`). Source: developers.openai.com `plugins/guides/submit-claude-plugin`, `plugins/deploy/submission`, `codex/plugins/build`, `plugins/plugin-guidelines`.
+
+**Constraints from OpenAI:** plugins with lifecycle hooks cannot be submitted to the public directory; `lspServers` / `.lsp.json` are unsupported; skill text must be provider-neutral; listing requires `interface` (`displayName` ≤ 30, `shortDescription` ≤ 30, `longDescription`, `developerName`, `category`, `capabilities`, `logo`, `composerIcon`), a published privacy policy, a support contact, and no ads. Generic single-word names are discouraged (resolved by "HatchLock").
+
+### Task 9: Provider-neutral skills
+- `skills/tight-diff/SKILL.md`: section 4 says the three-stage checks apply "when HatchLock's hooks are installed (Claude Code)"; otherwise run the equivalent compiler commands manually. No other "Claude" wording in `skills/{tight-diff,optimize,architect,clean}`.
+- Test: `! grep -niE '\bclaude\b' skills/{tight-diff,optimize,architect,clean}/SKILL.md`.
+
+### Task 10: Codex manifest, privacy policy, build script
+- Create `.codex-plugin/plugin.json`: `name` `hatchlock`, `version` = plugin.json version, `description`, `author`, `license`, `skills` `"./skills/"`, `interface` { `displayName` "HatchLock", `shortDescription` "Type-safety guardrails", `longDescription`, `developerName` "Tahmid Bin Taslim Rafi", `category` "Developer Tools", `capabilities` [], `defaultPrompt` (the README's 3 example prompts), `websiteURL`, `supportURL` (GitHub issues), `privacyPolicyURL` (PRIVACY.md blob URL), `logo` `./assets/logo.png`, `composerIcon` `./assets/icon.png` }.
+- Create `PRIVACY.md`: runs locally, collects/transmits no data, no telemetry; contact via GitHub issues.
+- Create `scripts/build-openai-zip.sh` → `dist/hatchlock-openai.zip` containing only `.codex-plugin/`, `skills/{tight-diff,optimize,architect,clean}/`, `assets/`, `README.md`, `LICENSE`, `PRIVACY.md` (excludes `hooks/`, `.lsp.json`, `scripts/`, `skills/doctor/`, `.claude-plugin/`). Fails if icons are missing.
+- Tests: zip listing contains no `hooks/` / `.lsp.json` / `doctor`; `.codex-plugin/plugin.json` version equals `.claude-plugin/plugin.json` version; `shortDescription` ≤ 30 chars.
+
+### User-only actions (cannot be automated)
+- Final square icon (PNG ≥ 512 px) → `.claude-plugin/icon.png` + `assets/icon.png`, `assets/logo.png`.
+- Anthropic: claude.ai/directory/manage (paid plan) → "Plugin bundle".
+- OpenAI: verify developer identity in platform.openai.com organization settings → platform.openai.com/plugins → "Create plugin" → "Skills only" → upload `dist/hatchlock-openai.zip`.
+- Optional: rename GitHub repo to `hatchlock` (GitHub redirects old URLs).

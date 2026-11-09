@@ -25,7 +25,9 @@ echo "  [PASS] Plugin manifest, 18 LSP servers, and 5 skills are well-formed"
 
 # 3. Fixtures
 TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
+OUT_DIR=$(mktemp -d)   # a directory outside the "project"
+trap 'rm -rf "$TMP_DIR" "$OUT_DIR"' EXIT
+export CLAUDE_PROJECT_DIR="$TMP_DIR"
 
 # check <expected-exit> <label> <script> <json-payload>
 check() {
@@ -62,6 +64,22 @@ pre 0 "Clean TS write allowed"                   "$(write_json "$TMP_DIR/clean.t
 post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
 post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
 post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
+printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
+post 0 "TS type errors deferred to Stop check" "$TMP_DIR/typeerr.ts"
+mkdir -p "$TMP_DIR/my dir" && printf 'echo ok\n' > "$TMP_DIR/my dir/ok.sh"
+post 0 "Path with a space"            "$TMP_DIR/my dir/ok.sh"
+cp "$TMP_DIR/broken.sh" "$OUT_DIR/broken.sh"
+post 0 "File outside project skipped" "$OUT_DIR/broken.sh"
+post 0 "Path with .. skipped"         "$TMP_DIR/../$(basename "$OUT_DIR")/broken.sh"
+
+# Huge checker output is truncated (stub shellcheck first on PATH)
+mkdir -p "$TMP_DIR/bin"
+printf '#!/usr/bin/env bash\nfor i in $(seq 5000); do echo "error line $i: something is wrong here"; done\nexit 1\n' > "$TMP_DIR/bin/shellcheck"
+chmod +x "$TMP_DIR/bin/shellcheck"
+PATH="$TMP_DIR/bin:$PATH" post 2 "Huge output still fails" "$TMP_DIR/my dir/ok.sh"
+[[ $(wc -c <"$TMP_DIR/stderr") -le 8000 ]] || fail "feedback exceeds 8000 chars"
+grep -q '(truncated)' "$TMP_DIR/stderr" || fail "missing (truncated) marker"
+echo "  [PASS] Feedback capped at 8000 chars"
 
 if command -v python3 >/dev/null 2>&1 && ! command -v pyright >/dev/null 2>&1; then
   printf 'def f(:\n' > "$TMP_DIR/broken.py"

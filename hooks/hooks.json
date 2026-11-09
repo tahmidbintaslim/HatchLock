@@ -2,12 +2,12 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Write|Edit|MultiEdit",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/verify-edit.sh\"",
-            "timeout": 30
+            "timeout": 60
           }
         ]
       }

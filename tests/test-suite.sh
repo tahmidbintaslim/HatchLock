@@ -153,6 +153,10 @@ PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "javac skippe
 jq -e '[.. | objects | has("version")] | any | not' .claude-plugin/marketplace.json >/dev/null || fail "version must live only in plugin.json"
 echo "  [PASS] No personal branding, stale names, sponsored output, or duplicate versions"
 
+# Skills shipped to OpenAI must be provider-neutral
+! grep -niE '\bclaude\b' skills/{tight-diff,optimize,architect,clean}/SKILL.md || fail "provider-specific wording in portable skills"
+echo "  [PASS] Portable skills are provider-neutral"
+
 # 4. Doctor
 ./scripts/lsp-doctor.sh >/dev/null
 echo "  [PASS] lsp-doctor.sh executed cleanly"

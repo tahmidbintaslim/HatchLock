@@ -8,7 +8,7 @@ effort: high
 
 # Tight Diff: Minimal, Compiler-Verified Changes
 
-Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` are blocked before the write lands. Fix the type. If suppression is truly unavoidable (e.g. a test asserting a type error), put `hatchlock-allow: <reason>` on the same line.
+Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` must never be added (HatchLock's hooks block them before the write lands). Fix the type. If suppression is truly unavoidable (e.g. a test asserting a type error), put `hatchlock-allow: <reason>` on the same line.
 
 If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
 
@@ -31,7 +31,7 @@ If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
 
 ## 4. Goal-Driven Execution
 1. Name the verification first: the compiler check, typecheck, or failing test that proves the change.
-2. HatchLock enforces this in three stages:
+2. Where HatchLock's hooks are installed, they enforce this in three stages (elsewhere, run the equivalent compiler or typecheck yourself after each change):
    - **Before each write:** escape hatches are blocked (`[HatchLock Guardrail]`).
    - **After each edit:** a fast per-file syntax/type check (`[HatchLock Compiler Loop]`).
    - **End of turn:** whole-project compilers for changed languages (`[HatchLock Project Check]`).

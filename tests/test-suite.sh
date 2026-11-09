@@ -87,6 +87,22 @@ if command -v python3 >/dev/null 2>&1 && ! command -v pyright >/dev/null 2>&1; t
   [[ ! -d "$TMP_DIR/__pycache__" ]] || fail "py_compile left __pycache__ behind"
 fi
 
+# Stop-hook project check
+stop() { check "$1" "$2" verify-project.sh "$3"; }
+REPO="$TMP_DIR/repo"; mkdir -p "$REPO/node_modules/.bin"
+git -C "$REPO" init -q
+printf 'node_modules/\n' > "$REPO/.gitignore"
+echo '{}' > "$REPO/tsconfig.json"
+printf '#!/usr/bin/env bash\necho "src/a.ts(1,7): error TS2322: Type string is not assignable to number."\nexit 2\n' > "$REPO/node_modules/.bin/tsc"
+chmod +x "$REPO/node_modules/.bin/tsc"
+git -C "$REPO" add -A && git -C "$REPO" -c user.email=t@t -c user.name=t commit -qm init
+CLAUDE_PROJECT_DIR="$REPO" stop 0 "Clean git tree: no project check"  '{"stop_hook_active":false}'
+CLAUDE_PROJECT_DIR="$OUT_DIR" stop 0 "Non-git dir: no project check"   '{"stop_hook_active":false}'
+printf 'export const n: number = "s";\n' > "$REPO/a.ts"
+CLAUDE_PROJECT_DIR="$REPO" stop 2 "Changed .ts with tsc errors fed back" '{"stop_hook_active":false}'
+grep -q 'TS2322' "$TMP_DIR/stderr" || fail "tsc error missing from Stop feedback"
+CLAUDE_PROJECT_DIR="$REPO" stop 0 "stop_hook_active: no loop"         '{"stop_hook_active":true}'
+
 # 4. Doctor
 ./scripts/lsp-doctor.sh >/dev/null
 echo "  [PASS] lsp-doctor.sh executed cleanly"

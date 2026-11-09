@@ -1,0 +1,31 @@
+{
+  "name": "polyglot",
+  "version": "1.0.0",
+  "description": "18-language LSP code intelligence, self-healing compiler loops, and Andrej Karpathy minimalism, architecture, and AI/systems optimization skills for Claude Code.",
+  "author": {
+    "name": "Tahmid Bin Taslim Rafi",
+    "url": "https://tahmid.space"
+  },
+  "repository": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+  "license": "MIT",
+  "keywords": [
+    "lsp",
+    "polyglot",
+    "karpathy",
+    "clean-code",
+    "optimization",
+    "architecture",
+    "guardrails",
+    "typescript",
+    "python",
+    "rust",
+    "go",
+    "cpp",
+    "zig",
+    "java",
+    "csharp",
+    "php",
+    "ruby",
+    "swift"
+  ]
+}

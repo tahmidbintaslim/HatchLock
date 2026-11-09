@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "polyglot-marketplace",
+  "version": "1.0.0",
+  "description": "Unified 18-language LSP bridge, self-healing compiler hooks, and Andrej Karpathy engineering suite for Claude Code",
+  "owner": {
+    "name": "Tahmid Bin Taslim Rafi",
+    "email": "hello@tahmid.space"
+  },
+  "plugins": [
+    {
+      "name": "polyglot",
+      "description": "All-in-one 18-language LSP bridge, deterministic compiler hooks, and Karpathy/optimization/architecture skills",
+      "source": "./",
+      "category": "development",
+      "version": "1.0.0"
+    }
+  ]
+}

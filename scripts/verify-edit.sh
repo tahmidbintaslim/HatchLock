@@ -11,15 +11,17 @@ FILE_PATH=$(jq -r '.tool_input.file_path // empty' <<<"$PAYLOAD")
 [[ -n "$FILE_PATH" && -f "$FILE_PATH" ]] || exit 0
 
 # Only check files inside the project; never follow "..".
-ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
 [[ "$FILE_PATH" == *"/../"* || "$FILE_PATH" == "../"* ]] && exit 0
-[[ "$FILE_PATH" == "$ROOT"/* ]] || exit 0
+# Compare physical paths so trailing slashes and symlinks (macOS /tmp) still match.
+ROOT=$(cd -P "${CLAUDE_PROJECT_DIR:-$PWD}" 2>/dev/null && pwd -P) || exit 0
+FILE_DIR=$(cd -P "$(dirname "$FILE_PATH")" 2>/dev/null && pwd -P) || exit 0
+[[ "$FILE_DIR/" == "$ROOT"/* ]] || exit 0
 
 has() { command -v "$1" >/dev/null 2>&1; }
 OUTPUT=""
 STATUS=0
 
-case "${FILE_PATH##*.}" in
+case "$(tr '[:upper:]' '[:lower:]' <<<"${FILE_PATH##*.}")" in
   py|pyi)
     if has pyright; then
       OUTPUT=$(pyright "$FILE_PATH" 2>&1); STATUS=$?
@@ -55,7 +57,7 @@ case "${FILE_PATH##*.}" in
     if has elixir; then
       OUTPUT=$(F="$FILE_PATH" elixir -e 'Code.string_to_quoted!(File.read!(System.fetch_env!("F")))' 2>&1); STATUS=$?
     fi ;;
-  r|R)
+  r)
     if has Rscript; then
       OUTPUT=$(F="$FILE_PATH" Rscript -e 'invisible(parse(file = Sys.getenv("F")))' 2>&1); STATUS=$?
     fi ;;
@@ -66,9 +68,11 @@ esac
 [[ $STATUS -eq 0 ]] && exit 0
 
 # Hook feedback over 10k chars is replaced by a file pointer; stay well under.
-FEEDBACK=$(head -n 40 <<<"$OUTPUT" | head -c 7800)
+HEADER="[HatchLock Compiler Loop] Verification failed after editing $FILE_PATH:"
+# Cap the whole message (header included) well under the 10k hook-output limit.
+FEEDBACK=$(head -n 40 <<<"$OUTPUT" | head -c $((7800 - ${#HEADER})))
 {
-  echo "[HatchLock Compiler Loop] Verification failed after editing $FILE_PATH:"
+  echo "$HEADER"
   echo "$FEEDBACK"
   [[ "$FEEDBACK" != "$OUTPUT" ]] && echo "… (truncated)"
 } >&2

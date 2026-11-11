@@ -65,6 +65,9 @@ printf 'if true; then\n' > "$TMP_DIR/broken.sh"
 pre 2 "Write with @ts-ignore blocked"            "$(write_json "$TMP_DIR/bloat.ts" $'// @ts-ignore\nexport const x = 1;')"
 pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'const y = x as any;')"
 pre 0 "hatchlock-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # hatchlock-allow: stub lib')"
+pre 2 "hatchlock-allow: needs a reason"          "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # hatchlock-allow:')"
+pre 2 "Upper-case extension still scanned"       "$(write_json "$TMP_DIR/B.TS" '// @ts-ignore')"
+pre 2 "NotebookEdit cell scanned"                "$(jq -nc --arg f "$TMP_DIR/n.ipynb" '{tool_name:"NotebookEdit",tool_input:{notebook_path:$f,new_source:"x = f()  # type: ignore"}}')"
 pre 0 "Non-source file (.md) not scanned"        "$(write_json "$TMP_DIR/notes.md" 'Never use @ts-ignore')"
 pre 0 "Clean TS write allowed"                   "$(write_json "$TMP_DIR/clean.ts" "$(cat "$TMP_DIR/clean.ts")")"
 pre 0 "Existing suppression in Edit context kept" "$(edit_json "$TMP_DIR/a.ts" $'// @ts-ignore legacy\nfoo(1)' $'// @ts-ignore legacy\nfoo()')"
@@ -92,15 +95,25 @@ post 0 "C file with project headers not flagged without a compile db" "$TMP_DIR/
 cp "$TMP_DIR/broken.sh" "$OUT_DIR/broken.sh"
 post 0 "File outside project skipped" "$OUT_DIR/broken.sh"
 post 0 "Path with .. skipped"         "$TMP_DIR/../$(basename "$OUT_DIR")/broken.sh"
+CLAUDE_PROJECT_DIR="$TMP_DIR/" post 2 "Trailing slash on project dir"  "$TMP_DIR/broken.sh"
+ln -s "$TMP_DIR" "$OUT_DIR/link"
+CLAUDE_PROJECT_DIR="$OUT_DIR/link" post 2 "Symlinked project dir"      "$TMP_DIR/broken.sh"
 
 # Huge checker output is truncated (stub shellcheck first on PATH)
 mkdir -p "$TMP_DIR/bin"
-printf '#!/usr/bin/env bash\nfor i in $(seq 5000); do echo "error line $i: something is wrong here"; done\nexit 1\n' > "$TMP_DIR/bin/shellcheck"
+cat > "$TMP_DIR/bin/shellcheck" <<'STUB'
+#!/usr/bin/env bash
+for i in $(seq 5000); do printf 'error line %s: %0300d\n' "$i" 0; done
+exit 1
+STUB
 chmod +x "$TMP_DIR/bin/shellcheck"
 PATH="$TMP_DIR/bin:$PATH" post 2 "Huge output still fails" "$TMP_DIR/my dir/ok.sh"
 [[ $(wc -c <"$TMP_DIR/stderr") -le 8000 ]] || fail "feedback exceeds 8000 chars"
 grep -q '(truncated)' "$TMP_DIR/stderr" || fail "missing (truncated) marker"
 echo "  [PASS] Feedback capped at 8000 chars"
+LONG="$TMP_DIR/$(printf 'd%.0s' {1..200})"; mkdir -p "$LONG"
+PATH="$TMP_DIR/bin:$PATH" post 2 "Long path + huge output" "$(cp "$TMP_DIR/my dir/ok.sh" "$LONG/ok.sh" && echo "$LONG/ok.sh")"
+[[ $(wc -c <"$TMP_DIR/stderr") -le 8000 ]] || fail "feedback with long path exceeds 8000 chars"
 
 if command -v python3 >/dev/null 2>&1 && ! command -v pyright >/dev/null 2>&1; then
   printf 'def f(:\n' > "$TMP_DIR/broken.py"

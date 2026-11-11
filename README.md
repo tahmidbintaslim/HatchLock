@@ -43,7 +43,7 @@ HatchLock checks code at three points:
 
 | Stage | Hook | What happens |
 | :--- | :--- | :--- |
-| **Before each write** | `PreToolUse` on `Write`/`Edit` | The new text is scanned for escape hatches. If one is found, the write is **blocked** and Claude is told to fix the type instead. |
+| **Before each write** | `PreToolUse` on `Write`/`Edit`/`NotebookEdit` | The new text is scanned for escape hatches. If one is found, the write is **blocked** and Claude is told to fix the type instead. |
 | **After each edit** | `PostToolUse` on `Write`/`Edit` | A fast syntax/type check runs on that one file. Errors go back to Claude. |
 | **End of each turn** | `Stop` | Whole-project compilers run once for each language with uncommitted changes. Errors make Claude continue and fix them (at most once per turn, never a loop). |
 
@@ -52,14 +52,14 @@ HatchLock checks code at three points:
 | Language | Blocked |
 | :--- | :--- |
 | TypeScript / JS / Vue | `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `eslint-disable`, `as any`, `: any`, `<any>`, `Record<string, any>` |
-| Python | `# type: ignore`, `# pyright: ignore` |
+| Python (incl. notebooks) | `# type: ignore`, `# pyright: ignore` |
 | PHP | `@phpstan-ignore`, `@psalm-suppress` |
 | Rust | `#[allow(dead_code)]`, `#[allow(unused…)]` |
 | Go | `//nolint` |
 
 Only **new** suppressions are blocked: ones already in the code Claude is editing are left alone. `.d.ts` declaration files are skipped.
 
-**Genuinely need one?** Put `hatchlock-allow: <reason>` on the same line:
+**Genuinely need one?** Put `hatchlock-allow: <reason>` on the same line (the reason is required):
 
 ```ts
 // @ts-expect-error hatchlock-allow: asserting this call is a type error

@@ -1,0 +1,14 @@
+{
+  "shadows": {
+    "card": "0 18px 40px -18px rgb(36 32 107 / 0.28), 0 2px 6px rgb(36 32 107 / 0.06)",
+    "button": "0 10px 22px -12px rgb(27 24 80 / 0.7)"
+  },
+  "motion": {
+    "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "reveal": "0.7s, rows staggered 0.6s"
+  },
+  "focus": {
+    "outline": "3px solid #4a43d8",
+    "offset": "3px"
+  }
+}

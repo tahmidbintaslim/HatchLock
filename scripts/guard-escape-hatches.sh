@@ -41,8 +41,8 @@ fi
 [[ -z "$MATCHES" ]] && exit 0
 
 {
-  echo "[HatchLock Guardrail] Blocked type-checker suppression in $FILE_PATH:"
+  echo "[HatchLock Guardrail] Blocked: this edit would hide a type error in $FILE_PATH:"
   head -n 10 <<<"$MATCHES"
-  echo "Fix the underlying type, or add \"hatchlock-allow: <reason>\" on the same line if suppression is truly required."
+  echo "Fix the type instead. If the suppression is truly needed, add \"hatchlock-allow: <reason>\" on the same line."
 } >&2
 exit 2

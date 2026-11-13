@@ -6,8 +6,8 @@
     "name": "Tahmid Bin Taslim Rafi",
     "url": "https://tahmid.space"
   },
-  "homepage": "https://github.com/tahmidbintaslim/claude-code-polyglot",
-  "repository": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+  "homepage": "https://github.com/tahmidbintaslim/HatchLock",
+  "repository": "https://github.com/tahmidbintaslim/HatchLock",
   "license": "MIT",
   "keywords": [
     "type-safety",
@@ -30,9 +30,9 @@
       "Optimize the /orders endpoint, it runs one query per line item.",
       "Clean up lib/report_builder.py without changing its behaviour."
     ],
-    "websiteURL": "https://github.com/tahmidbintaslim/claude-code-polyglot",
-    "supportURL": "https://github.com/tahmidbintaslim/claude-code-polyglot/issues",
-    "privacyPolicyURL": "https://github.com/tahmidbintaslim/claude-code-polyglot/blob/HEAD/PRIVACY.md",
+    "websiteURL": "https://github.com/tahmidbintaslim/HatchLock",
+    "supportURL": "https://github.com/tahmidbintaslim/HatchLock/issues",
+    "privacyPolicyURL": "https://github.com/tahmidbintaslim/HatchLock/blob/HEAD/PRIVACY.md",
     "logo": "./assets/logo.png",
     "composerIcon": "./assets/icon.png"
   }

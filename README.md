@@ -1,16 +1,28 @@
-# 🔒 HatchLock for Claude Code
+<p align="center">
+  <a href="https://tahmidbintaslim.github.io/HatchLock/"><img src="assets/banner.png" alt="HatchLock: stop your AI from hiding type errors. Without HatchLock, a // @ts-ignore comment hides the error. With HatchLock, the comment is blocked and the type is fixed." width="100%"></a>
+</p>
 
-**Locks the type-checker escape hatches before they land.** HatchLock stops Claude Code from silencing your compiler with `@ts-ignore`, `as any`, `# type: ignore`, `//nolint` and friends, checks every edit against your own local compilers across 17 languages, and adds minimal-diff, optimization and architecture skills.
+# HatchLock
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tahmid)
+**Stop your AI from hiding type errors.**
+
+When an AI coding assistant hits a type error, the quick way out is to tell the type checker to look away: `@ts-ignore`, `as any`, `# type: ignore`. The error is still there. You just can't see it.
+
+HatchLock is a free plugin for Claude Code that closes that way out:
+
+- **It blocks the shortcut before it is written.** The AI is told to fix the type instead.
+- **It checks each edit with your own compilers**, so mistakes are caught while the AI is still working.
+- **It leaves your existing code alone.** Only new shortcuts are stopped.
+- **It runs on your machine.** No account, no tracking, nothing sent anywhere.
+
+[Website](https://tahmidbintaslim.github.io/HatchLock/) · [Report a problem](https://github.com/tahmidbintaslim/HatchLock/issues) · [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tahmid)
 
 ---
 
 ## Install
 
 ```bash
-claude plugin marketplace add tahmidbintaslim/claude-code-polyglot
+claude plugin marketplace add tahmidbintaslim/HatchLock
 ```
 
 ```bash
@@ -20,11 +32,11 @@ claude plugin install hatchlock@hatchlock-marketplace
 Or run from a local clone:
 
 ```bash
-git clone https://github.com/tahmidbintaslim/claude-code-polyglot.git
+git clone https://github.com/tahmidbintaslim/HatchLock.git
 ```
 
 ```bash
-claude --plugin-dir ./claude-code-polyglot
+claude --plugin-dir ./HatchLock
 ```
 
 ### Updating
@@ -149,6 +161,14 @@ The four portable skills (`tight-diff`, `optimize`, `architect`, `clean`) also s
 
 `.cursor/rules/hatchlock-tight-diff.mdc` carries the same rules for Cursor and Windsurf (advisory only; no hooks).
 
+## Website
+
+The landing page lives in `site/` (Astro). Design notes are in `DESIGN.md` and `PRODUCT.md`.
+
+```bash
+cd site && npm install && npm run dev
+```
+
 ## Development
 
 ```bash
@@ -165,7 +185,7 @@ HatchLock collects and sends no data. See [PRIVACY.md](PRIVACY.md).
 
 ## Support
 
-Report bugs and ask questions in [GitHub Issues](https://github.com/tahmidbintaslim/claude-code-polyglot/issues).
+Report bugs and ask questions in [GitHub Issues](https://github.com/tahmidbintaslim/HatchLock/issues).
 
 ## Inspired by
 

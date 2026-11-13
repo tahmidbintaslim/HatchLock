@@ -64,7 +64,7 @@ fi
 
 FEEDBACK=$(head -n 40 <<<"$REPORT" | head -c 7800)
 {
-  echo "[HatchLock Project Check] Project-wide checks failed for languages with uncommitted changes:"
+  echo "[HatchLock Project Check] The project does not pass its checks yet. Fix these errors before finishing:"
   echo "$FEEDBACK"
   [[ "$FEEDBACK" != "${REPORT%$'\n'}" ]] && echo "… (truncated)"
 } >&2

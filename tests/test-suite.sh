@@ -160,8 +160,8 @@ PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "javac skippe
 ! grep -n 'mapfile' scripts/*.sh || fail "mapfile is unavailable in macOS bash 3.2"
 
 # Branding & policy
-! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers . || fail "Karpathy branding outside README attribution"
-! grep -rniIE 'polyglot' --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude=README.md --exclude=test-suite.sh . | grep -v 'claude-code-polyglot' || fail "stale 'polyglot' name"
+! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.astro --exclude-dir=.impeccable --exclude=PRODUCT.md . || fail "Karpathy branding outside README attribution"
+! grep -rniIE 'polyglot' --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.astro --exclude-dir=.impeccable --exclude=PRODUCT.md --exclude=README.md --exclude=test-suite.sh . | grep -v 'claude-code-polyglot' || fail "stale 'polyglot' name"
 ! ./scripts/lsp-doctor.sh | grep -iE 'coffee|sponsor|polar' || fail "sponsored text in doctor output"
 jq -e '[.. | objects | has("version")] | any | not' .claude-plugin/marketplace.json >/dev/null || fail "version must live only in plugin.json"
 echo "  [PASS] No personal branding, stale names, sponsored output, or duplicate versions"

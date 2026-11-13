@@ -1,0 +1,254 @@
+---
+import '../styles/site.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const repo = 'https://github.com/tahmidbintaslim/HatchLock';
+const cmds = [
+  ['Step 1', 'claude plugin marketplace add tahmidbintaslim/HatchLock'],
+  ['Step 2', 'claude plugin install hatchlock@hatchlock-marketplace'],
+];
+const langs = [
+  ['TypeScript and JavaScript', ['@ts-ignore', '@ts-expect-error', '@ts-nocheck', 'as any', ': any', 'eslint-disable']],
+  ['Python and notebooks', ['# type: ignore', '# pyright: ignore']],
+  ['PHP', ['@phpstan-ignore', '@psalm-suppress']],
+  ['Rust', ['#[allow(dead_code)]', '#[allow(unused)]']],
+  ['Go', ['//nolint']],
+];
+const skills = [
+  ['tight-diff', 'Runs on its own. Keeps changes small and stops the AI from rewriting code you did not ask it to touch.'],
+  ['/hatchlock:optimize', 'Finds slow spots such as one database query per row, and fixes them.'],
+  ['/hatchlock:architect', 'Plans a feature starting from the data, and compares three ways to build it.'],
+  ['/hatchlock:clean', 'Removes dead code and needless layers without changing what the code does.'],
+  ['/hatchlock:doctor', 'Shows which compilers and language servers HatchLock can use on your machine.'],
+];
+const faqs = [
+  ['Will it block the old code I already have?', 'No. HatchLock only stops new suppressions. If a file already has one, your AI can keep editing around it.'],
+  ['What if I really do need one?', 'Add hatchlock-allow: followed by a short reason on the same line, and it goes through. The reason is required, so the next person knows why it is there.'],
+  ['Does my code leave my machine?', 'No. HatchLock runs the compilers you already have installed. It makes no network calls, has no account and collects nothing.'],
+  ['Will it slow my AI down?', 'The check before a write is a quick text scan. After each edit only that one file is checked. Full project checks run once, when the AI finishes its turn.'],
+  ['What if I do not have a compiler installed?', 'That check is skipped. A missing tool is never treated as a failure.'],
+  ['Does it work in ChatGPT?', 'Partly. ChatGPT and Codex get the skills as guidance. The blocking and the compiler checks need Claude Code, because only it lets a plugin step in before a file is written.'],
+  ['Is it free?', 'Yes. HatchLock is free and open source under the MIT license.'],
+];
+const icon = {
+  block: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM5.6 5.6l12.8 12.8',
+  check: 'M4.5 12.5l5 5 10-11',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  copy: 'M9 9h10v10H9zM5 15V5h10',
+  file: 'M7 3h7l5 5v13H7zM14 3v5h5',
+  flag: 'M6 21V4h11l-2 4 2 4H6',
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HatchLock: stop your AI from hiding type errors</title>
+    <meta name="description" content="HatchLock stops Claude Code from silencing type errors with @ts-ignore, as any or # type: ignore, and checks every edit with your own compilers. Free, open source, runs on your machine." />
+    <link rel="icon" type="image/svg+xml" href={`${base}/icon.svg`} />
+    <meta property="og:title" content="HatchLock: stop your AI from hiding type errors" />
+    <meta property="og:description" content="Blocks @ts-ignore, as any and # type: ignore before they are written. Free and open source." />
+    <meta name="theme-color" content="#24206b" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <nav class="nav wrap" aria-label="Main">
+      <a class="brand" href={`${base}/`}><img src={`${base}/icon.svg`} alt="" width="40" height="40" />HatchLock</a>
+      <a class="opt" href="#how">How it works</a>
+      <a class="opt" href="#blocks">What it blocks</a>
+      <a class="opt" href="#faq">Questions</a>
+      <a href={repo}>GitHub</a>
+    </nav>
+
+    <main id="main">
+      <div class="hero wrap">
+        <div>
+          <h1>Stop your AI from hiding type errors</h1>
+          <p class="sub">HatchLock makes Claude Code fix the real problem, so shortcuts like <code>@ts-ignore</code> and <code>as any</code> never reach your code.</p>
+          <a class="btn" href="#install">Get HatchLock
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.arrow} /></svg>
+          </a>
+          <p class="trust">Free and open source. Runs on your machine. Nothing is sent anywhere.</p>
+        </div>
+
+        <div class="demo">
+          <div class="win before">
+            <header><i></i><i></i><i></i><span>Without HatchLock</span></header>
+            <pre><span class="hatch">// @ts-ignore</span>
+const total = sum(order.items);</pre>
+            <p class="cap">The error is still there. You just can't see it.</p>
+          </div>
+          <svg class="arrow" viewBox="0 0 140 110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 22c38-22 92-20 100 8 6 22-22 30-30 14-8-18 28-26 44 18 4 12 4 24 2 40" />
+            <path d="M106 86l14 18 12-20" />
+          </svg>
+          <div class="win after">
+            <header><i></i><i></i><i></i><span>With HatchLock</span></header>
+            <div class="row note">Claude tries to add <code>// @ts-ignore</code></div>
+            <div class="row blocked">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d={icon.block} /></svg>
+              <span>Blocked. Fix the type instead.</span>
+            </div>
+            <pre>const total = sum(order.items ?? []);</pre>
+            <div class="row pass">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.check} /></svg>
+              <span>Type check passes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section id="how" class="wrap">
+        <div class="checks">
+          <h2>Three quiet checks while your AI works</h2>
+          <p class="lede">When everything is fine, you see nothing. HatchLock only speaks up when something is wrong, and it tells the AI exactly what to fix.</p>
+          <ol class="steps">
+            <li>
+              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d={icon.block} /></svg></span>
+              <div>
+                <h3>Before a file is written</h3>
+                <p>If the change would hide an error, it is stopped before it touches your code.</p>
+              </div>
+              <div class="term" role="img" aria-label="Example message: blocked, this edit would hide a type error in src/billing.ts"><b>[HatchLock Guardrail]</b> Blocked: this edit would hide a type error in src/billing.ts:
+2:// @ts-ignore
+Fix the type instead. If the suppression is truly needed, add "hatchlock-allow: &lt;reason&gt;" on the same line.</div>
+            </li>
+            <li>
+              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.file} /></svg></span>
+              <div>
+                <h3>After each edit</h3>
+                <p>The file that just changed gets a quick check with your own tools, such as pyright, shellcheck or gofmt.</p>
+              </div>
+              <div class="term" role="img" aria-label="Example message: check failed after editing scripts/deploy.sh"><b>[HatchLock Compiler Loop]</b> Check failed after editing scripts/deploy.sh. Fix this before moving on:
+line 14: syntax error: unexpected end of file</div>
+            </li>
+            <li>
+              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.flag} /></svg></span>
+              <div>
+                <h3>When the AI says it is done</h3>
+                <p>Your project's compiler runs once. If it finds errors, the AI goes back and fixes them before handing over.</p>
+              </div>
+              <div class="term" role="img" aria-label="Example message: the project does not pass its checks yet, with a TypeScript error"><b>[HatchLock Project Check]</b> The project does not pass its checks yet. Fix these errors before finishing:
+== tsc ==
+src/cart.ts(8,7): error TS2322: Type 'string' is not assignable to type 'number'.</div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="blocks" class="wrap">
+        <h2>The shortcuts it stops</h2>
+        <p class="lede">These comments and casts tell the type checker to look away. HatchLock keeps new ones out of five languages.</p>
+        <dl class="langs">
+          {langs.map(([name, items]) => (
+            <div>
+              <dt>{name}</dt>
+              <dd>{items.map((i) => <code>{i}</code>)}</dd>
+            </div>
+          ))}
+        </dl>
+        <div class="aside">
+          <div>
+            <h3>Your existing code is left alone</h3>
+            <p>Only new shortcuts are stopped. Files that already have them keep working, and your AI can still edit around them.</p>
+          </div>
+          <div>
+            <h3>There is an honest way through</h3>
+            <p>Add <code>hatchlock-allow:</code> and a short reason on the same line. No reason, no pass.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="wrap install">
+        <div>
+          <h2>Add it to Claude Code in two steps</h2>
+          <p class="lede">Paste these into your terminal, one after the other. HatchLock starts working in your next session.</p>
+          <p class="fine">It needs <code>jq</code> and uses whichever compilers you already have. Using ChatGPT or Codex? The skills-only version is in the <a href={repo}>GitHub repo</a>.</p>
+        </div>
+        <div class="cmds">
+          {cmds.map(([label, cmd]) => (
+            <div class="cmd">
+              <span>{label}</span>
+              <code>{cmd}</code>
+              <button class="copy" type="button" data-copy={cmd}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d={icon.copy} /></svg>
+                <span>Copy</span><span class="sr"> {label.toLowerCase()} command</span>
+              </button>
+            </div>
+          ))}
+          <p class="sr" role="status" id="copied"></p>
+        </div>
+      </section>
+
+      <section class="wrap">
+        <h2>Five helpers come with it</h2>
+        <p class="lede">Type a command when you want one. The first runs by itself.</p>
+        <dl class="skills">
+          {skills.map(([name, text]) => (
+            <div>
+              <dt><code>{name}</code></dt>
+              <dd>{text}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="faq" class="wrap">
+        <h2>Questions</h2>
+        <div class="faq">
+          {faqs.map(([q, a]) => (
+            <details>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <div class="cols">
+          <div>
+            <a class="brand" href={`${base}/`}>HatchLock</a>
+            <p>Made by Tahmid Bin Taslim Rafi. An independent project, not affiliated with or endorsed by Anthropic or OpenAI.</p>
+          </div>
+          <div>
+            <h3>Project</h3>
+            <ul>
+              <li><a href={repo}>GitHub</a></li>
+              <li><a href={`${repo}#readme`}>Documentation</a></li>
+              <li><a href={`${repo}/blob/main/LICENSE`}>MIT license</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Help</h3>
+            <ul>
+              <li><a href={`${repo}/issues`}>Report a problem</a></li>
+              <li><a href={`${repo}/blob/main/PRIVACY.md`}>Privacy</a></li>
+              <li><a href="https://buymeacoffee.com/tahmid">Buy me a coffee</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="legal">Claude and Claude Code are trademarks of Anthropic. ChatGPT is a trademark of OpenAI.</p>
+      </div>
+    </footer>
+
+    <script is:inline>
+      document.querySelectorAll('.copy').forEach((b) =>
+        b.addEventListener('click', async () => {
+          const label = b.querySelector('span');
+          try {
+            await navigator.clipboard.writeText(b.dataset.copy);
+            label.textContent = 'Copied';
+            document.getElementById('copied').textContent = 'Command copied';
+          } catch {
+            label.textContent = 'Select it';
+          }
+          setTimeout(() => (label.textContent = 'Copy'), 1800);
+        })
+      );
+    </script>
+  </body>
+</html>

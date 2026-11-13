@@ -68,7 +68,7 @@ esac
 [[ $STATUS -eq 0 ]] && exit 0
 
 # Hook feedback over 10k chars is replaced by a file pointer; stay well under.
-HEADER="[HatchLock Compiler Loop] Verification failed after editing $FILE_PATH:"
+HEADER="[HatchLock Compiler Loop] Check failed after editing $FILE_PATH. Fix this before moving on:"
 # Cap the whole message (header included) well under the 10k hook-output limit.
 FEEDBACK=$(head -n 40 <<<"$OUTPUT" | head -c $((7800 - ${#HEADER})))
 {

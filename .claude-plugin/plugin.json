@@ -6,7 +6,7 @@
     "name": "Tahmid Bin Taslim Rafi",
     "url": "https://tahmid.space"
   },
-  "repository": "https://github.com/tahmidbintaslim/claude-code-polyglot",
+  "repository": "https://github.com/tahmidbintaslim/HatchLock",
   "license": "MIT",
   "keywords": [
     "type-safety",
@@ -29,5 +29,5 @@
     "ruby",
     "swift"
   ],
-  "homepage": "https://github.com/tahmidbintaslim/claude-code-polyglot"
+  "homepage": "https://github.com/tahmidbintaslim/HatchLock"
 }

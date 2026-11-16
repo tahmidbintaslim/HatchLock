@@ -29,7 +29,7 @@ const outcomes = [
   ['block', 'Shortcuts Blocked Before They Land', 'When the AI tries to add @ts-ignore, as any or # type: ignore, the edit is stopped and it is told to fix the type.', '#blocks', 'See what is blocked'],
   ['file', 'Every Edit Checked', 'The file that just changed is checked with your own tools. The whole project is checked once when the AI finishes.', '#how', 'See the three checks'],
   ['archive', 'Old Code Left Alone', 'Only new shortcuts are stopped. Files that already have them keep working, and the AI can still edit around them.', '#faq', 'How that works'],
-  ['laptop', 'Runs On Your Machine', 'It uses the compilers you already have. No account, no tracking, and nothing is sent anywhere.', '#private', 'Read the details'],
+  ['laptop', 'Runs On Your Machine', 'It uses the compilers you already have. There is no account, and nothing is sent anywhere.', '#private', 'Read the details'],
 ];
 const stats = [
   ['Runs', '3', 'checks', 'before, after and at the end'],
@@ -58,7 +58,7 @@ const steps = [
   },
   {
     label: 'Allow', title: 'An honest way through when you need one',
-    body: 'Sometimes a suppression is the right call, such as a test that expects a type error. Add hatchlock-allow: and a short reason on the same line and it goes through. No reason, no pass.',
+    body: 'Sometimes a suppression is the right call, such as a test that expects a type error. Add hatchlock-allow: and a short reason on the same line and it goes through. Without a reason it is still blocked.',
     link: ['Read about hatchlock-allow', `${repo}#blocked-escape-hatches`], term: 'tests/types.test.ts',
     lines: [['dim', '// the call below must not compile'], ['ok', '// @ts-expect-error hatchlock-allow: asserting this call is a type error'], ['', "sum('not a number');"]],
   },
@@ -170,7 +170,7 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
 
       <section class="tinted">
         <div class="wrap">
-          <h2>Type errors get fixed. <em>Not hidden.</em></h2>
+          <h2>Type errors get fixed, <em>not hidden.</em></h2>
           <p class="lede">When an AI hits a type error, the quick way out is to tell the type checker to look away. HatchLock closes that way out and checks the result.</p>
           <div class="cards">
             {outcomes.map(([icon, title, text, href, link]) => (
@@ -184,8 +184,8 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
           </div>
           <div class="band">
             <div>
-              <h3>Two commands.<br />No account.</h3>
-              <p>Free and open source under the MIT license.</p>
+              <h3>Installs with<br />two commands.</h3>
+              <p>Free and open source, with no account to create.</p>
               <a class="more" href="#install">See the install steps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.arrow} /></svg></a>
             </div>
             {stats.map(([small, big, unit, note]) => (

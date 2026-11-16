@@ -3,41 +3,97 @@ import '../styles/site.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const repo = 'https://github.com/tahmidbintaslim/HatchLock';
-const cmds = [
-  ['Step 1', 'claude plugin marketplace add tahmidbintaslim/HatchLock'],
-  ['Step 2', 'claude plugin install hatchlock@hatchlock-marketplace'],
+
+const installs = [
+  ['Claude Code', ['claude plugin marketplace add tahmidbintaslim/HatchLock', 'claude plugin install hatchlock@hatchlock-marketplace']],
+  ['Local clone', ['git clone https://github.com/tahmidbintaslim/HatchLock.git', 'claude --plugin-dir ./HatchLock']],
+  ['Update', ['claude plugin marketplace update hatchlock-marketplace']],
 ];
+const tools = ['tsc', 'pyright', 'cargo', 'go vet', 'shellcheck', 'javac', 'dotnet', 'terraform'];
+
+const I = {
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  block: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM5.6 5.6l12.8 12.8',
+  check: 'M4 12.5l5 5L20 6.5',
+  file: 'M7 3h7l5 5v13H7zM14 3v5h5M9.5 15l2 2 3.5-4',
+  archive: 'M4 5h16v4H4zM6 9v10h12V9M10 13h4',
+  laptop: 'M5 5h14v10H5zM3 19h18',
+  copy: 'M9 9h10v10H9zM5 15V5h10',
+  code: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14',
+  lock: 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5z',
+  user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5M4 4l16 16',
+  wifi: 'M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M4 4l16 16',
+};
+
+const outcomes = [
+  ['block', 'Shortcuts Blocked Before They Land', 'When the AI tries to add @ts-ignore, as any or # type: ignore, the edit is stopped and it is told to fix the type.', '#blocks', 'See what is blocked'],
+  ['file', 'Every Edit Checked', 'The file that just changed is checked with your own tools. The whole project is checked once when the AI finishes.', '#how', 'See the three checks'],
+  ['archive', 'Old Code Left Alone', 'Only new shortcuts are stopped. Files that already have them keep working, and the AI can still edit around them.', '#faq', 'How that works'],
+  ['laptop', 'Runs On Your Machine', 'It uses the compilers you already have. No account, no tracking, and nothing is sent anywhere.', '#private', 'Read the details'],
+];
+const stats = [
+  ['Runs', '3', 'checks', 'before, after and at the end'],
+  ['Guards', '5', 'languages', 'against new type shortcuts'],
+  ['Sends', '0', 'bytes', 'everything stays local'],
+];
+
+const steps = [
+  {
+    label: 'Block', title: 'A shortcut is stopped before it is written',
+    body: 'HatchLock reads each change before it touches your file. If the change adds a comment or cast that hides a type error, the write is refused and the AI gets a one-line instruction to fix the real problem.',
+    link: ['See what is blocked', '#blocks'], term: 'claude code · edit src/billing.ts',
+    lines: [['dim', '> Edit src/billing.ts'], ['dim', '  + // @ts-ignore'], ['bad', '✕ [HatchLock Guardrail] Blocked: this edit would hide a type error in src/billing.ts:'], ['', '  2:// @ts-ignore'], ['', '  Fix the type instead. If the suppression is truly needed, add "hatchlock-allow: <reason>" on the same line.']],
+  },
+  {
+    label: 'Check', title: 'Each edit gets a quick check',
+    body: 'Right after a file changes, HatchLock runs a fast check on that one file with tools such as pyright, shellcheck or gofmt. Mistakes are caught while the AI is still working on them.',
+    link: ['What runs for each language', `${repo}#what-the-hooks-run`], term: 'after edit · scripts/deploy.sh',
+    lines: [['bad', '✕ [HatchLock Compiler Loop] Check failed after editing scripts/deploy.sh. Fix this before moving on:'], ['', '  line 14: syntax error: unexpected end of file']],
+  },
+  {
+    label: 'Verify', title: 'The project must pass before the AI is done',
+    body: "When the AI says it has finished, your project's compiler runs once. If it finds errors, the AI goes back and fixes them. It gets one extra round, so it can never loop forever.",
+    link: ['How the end-of-turn check works', `${repo}#how-it-works`], term: 'end of turn · project check',
+    lines: [['bad', '✕ [HatchLock Project Check] The project does not pass its checks yet. Fix these errors before finishing:'], ['dim', '  == tsc =='], ['', "  src/cart.ts(8,7): error TS2322: Type 'string' is not assignable to type 'number'."]],
+  },
+  {
+    label: 'Allow', title: 'An honest way through when you need one',
+    body: 'Sometimes a suppression is the right call, such as a test that expects a type error. Add hatchlock-allow: and a short reason on the same line and it goes through. No reason, no pass.',
+    link: ['Read about hatchlock-allow', `${repo}#blocked-escape-hatches`], term: 'tests/types.test.ts',
+    lines: [['dim', '// the call below must not compile'], ['ok', '// @ts-expect-error hatchlock-allow: asserting this call is a type error'], ['', "sum('not a number');"]],
+  },
+  {
+    label: 'Skills', title: 'Five helpers for smaller, cleaner changes',
+    body: 'tight-diff runs by itself and keeps changes small. Four commands are there when you want them: optimize, architect, clean and doctor.',
+    link: ['See all five skills', `${repo}#skills`], term: 'your coding agent · HatchLock skills',
+    lines: [['', '> /hatchlock:doctor'], ['dim', '  HatchLock LSP & Compiler Toolchain Health Audit'], ['ok', '  [OK]      tsc'], ['ok', '  [OK]      pyright'], ['dim', '  [--]      cargo']],
+  },
+];
+
 const langs = [
   ['TypeScript and JavaScript', ['@ts-ignore', '@ts-expect-error', '@ts-nocheck', 'as any', ': any', 'eslint-disable']],
   ['Python and notebooks', ['# type: ignore', '# pyright: ignore']],
-  ['PHP', ['@phpstan-ignore', '@psalm-suppress']],
   ['Rust', ['#[allow(dead_code)]', '#[allow(unused)]']],
+  ['PHP', ['@phpstan-ignore', '@psalm-suppress']],
   ['Go', ['//nolint']],
 ];
-const skills = [
-  ['tight-diff', 'Runs on its own. Keeps changes small and stops the AI from rewriting code you did not ask it to touch.'],
-  ['/hatchlock:optimize', 'Finds slow spots such as one database query per row, and fixes them.'],
-  ['/hatchlock:architect', 'Plans a feature starting from the data, and compares three ways to build it.'],
-  ['/hatchlock:clean', 'Removes dead code and needless layers without changing what the code does.'],
-  ['/hatchlock:doctor', 'Shows which compilers and language servers HatchLock can use on your machine.'],
-];
+const cells = [['wifi', 'No network calls'], ['user', 'No account or sign-up'], ['code', 'Open source, MIT licensed']];
 const faqs = [
+  ['How do I get started?', 'Paste the two install commands into your terminal. HatchLock starts working in your next Claude Code session. There is no account and nothing to configure.'],
   ['Will it block the old code I already have?', 'No. HatchLock only stops new suppressions. If a file already has one, your AI can keep editing around it.'],
-  ['What if I really do need one?', 'Add hatchlock-allow: followed by a short reason on the same line, and it goes through. The reason is required, so the next person knows why it is there.'],
-  ['Does my code leave my machine?', 'No. HatchLock runs the compilers you already have installed. It makes no network calls, has no account and collects nothing.'],
+  ['What if I really do need a suppression?', 'Add hatchlock-allow: followed by a short reason on the same line, and it goes through. The reason is required, so the next person knows why it is there.'],
+  ['Does my code leave my machine?', 'No. HatchLock runs the compilers you already have installed. It makes no network calls and collects nothing.'],
   ['Will it slow my AI down?', 'The check before a write is a quick text scan. After each edit only that one file is checked. Full project checks run once, when the AI finishes its turn.'],
   ['What if I do not have a compiler installed?', 'That check is skipped. A missing tool is never treated as a failure.'],
   ['Does it work in ChatGPT?', 'Partly. ChatGPT and Codex get the skills as guidance. The blocking and the compiler checks need Claude Code, because only it lets a plugin step in before a file is written.'],
-  ['Is it free?', 'Yes. HatchLock is free and open source under the MIT license.'],
 ];
-const icon = {
-  block: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM5.6 5.6l12.8 12.8',
-  check: 'M4.5 12.5l5 5 10-11',
-  arrow: 'M5 12h14M13 6l6 6-6 6',
-  copy: 'M9 9h10v10H9zM5 15V5h10',
-  file: 'M7 3h7l5 5v13H7zM14 3v5h5',
-  flag: 'M6 21V4h11l-2 4 2 4H6',
-};
+
+// Ribbon: a fan of thin lines that twist once, like a sheet of paper turning.
+const ribbon = Array.from({ length: 90 }, (_, i) => {
+  const t = i / 89;
+  // Each line crosses the others at a different x, so the band turns over gradually instead of pinching.
+  return `M-60 ${500 - t * 14} C 220 ${480 - t * 70}, ${400 + t * 60} ${560 - t * 300}, ${600 + t * 190} ${380 - t * 70} S ${900 + t * 60} ${110 + t * 250}, 1080 ${-10 + t * 330}`;
+});
 ---
 <!doctype html>
 <html lang="en">
@@ -49,206 +105,236 @@ const icon = {
     <link rel="icon" type="image/svg+xml" href={`${base}/icon.svg`} />
     <meta property="og:title" content="HatchLock: stop your AI from hiding type errors" />
     <meta property="og:description" content="Blocks @ts-ignore, as any and # type: ignore before they are written. Free and open source." />
-    <meta name="theme-color" content="#24206b" />
+    <meta name="theme-color" content="#4a43d8" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <nav class="nav wrap" aria-label="Main">
-      <a class="brand" href={`${base}/`}><img src={`${base}/icon.svg`} alt="" width="40" height="40" />HatchLock</a>
-      <a class="opt" href="#how">How it works</a>
-      <a class="opt" href="#blocks">What it blocks</a>
-      <a class="opt" href="#faq">Questions</a>
-      <a href={repo}>GitHub</a>
-    </nav>
+    <div class="top">
+      <nav class="nav wrap" aria-label="Main">
+        <a class="brand" href={`${base}/`}><img src={`${base}/icon.svg`} alt="" width="28" height="28" />HatchLock</a>
+        <div class="links">
+          <a href="#how">How it works</a>
+          <a href="#blocks">What it blocks</a>
+          <a href="#faq">Questions</a>
+        </div>
+        <a class="btn ghost sm" href={repo}>GitHub</a>
+        <a class="btn sm" href="#install">Get HatchLock</a>
+      </nav>
+    </div>
 
     <main id="main">
-      <div class="hero wrap">
-        <div>
-          <h1>Stop your AI from hiding type errors</h1>
-          <p class="sub">HatchLock makes Claude Code fix the real problem, so shortcuts like <code>@ts-ignore</code> and <code>as any</code> never reach your code.</p>
-          <a class="btn" href="#install">Get HatchLock
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.arrow} /></svg>
-          </a>
-          <p class="trust">Free and open source. Runs on your machine. Nothing is sent anywhere.</p>
-        </div>
-
-        <div class="demo">
-          <div class="win before">
-            <header><i></i><i></i><i></i><span>Without HatchLock</span></header>
-            <pre><span class="hatch">// @ts-ignore</span>
-const total = sum(order.items);</pre>
-            <p class="cap">The error is still there. You just can't see it.</p>
+      <div class="hero">
+        <svg class="ribbon" viewBox="0 0 1000 520" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="rb" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#ffd9cf" stop-opacity="0" />
+              <stop offset="0.35" stop-color="#ef5b4c" stop-opacity="0.55" />
+              <stop offset="0.7" stop-color="#8a55e6" stop-opacity="0.7" />
+              <stop offset="1" stop-color="#4a43d8" stop-opacity="0.85" />
+            </linearGradient>
+          </defs>
+          {ribbon.map((d) => <path d={d} stroke="url(#rb)" stroke-width="1.5" />)}
+        </svg>
+        <div class="wrap">
+          <h1>Stop your AI from <em>hiding type errors.</em></h1>
+          <p class="sub">HatchLock makes Claude Code fix the real problem. Shortcuts like <code>@ts-ignore</code> and <code>as any</code> are blocked before they reach your code, and every edit is checked with your own compilers.</p>
+          <div class="cta">
+            <a class="btn" href="#install">Get HatchLock</a>
+            <a class="btn ghost" href={repo}>View on GitHub</a>
           </div>
-          <svg class="arrow" viewBox="0 0 140 110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 22c38-22 92-20 100 8 6 22-22 30-30 14-8-18 28-26 44 18 4 12 4 24 2 40" />
-            <path d="M106 86l14 18 12-20" />
-          </svg>
-          <div class="win after">
-            <header><i></i><i></i><i></i><span>With HatchLock</span></header>
-            <div class="row note">Claude tries to add <code>// @ts-ignore</code></div>
-            <div class="row blocked">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d={icon.block} /></svg>
-              <span>Blocked. Fix the type instead.</span>
+
+          <p class="hint" id="install">Install into Claude Code. Using ChatGPT or Codex? <a href={`${repo}#chatgpt-and-codex`}>See the skills-only version</a>.</p>
+          <div class="install">
+            <div class="tabs" role="tablist" aria-label="Install method">
+              {installs.map(([name], i) => (
+                <button role="tab" type="button" id={`tab-${i}`} aria-controls={`panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{name}</button>
+              ))}
             </div>
-            <pre>const total = sum(order.items ?? []);</pre>
-            <div class="row pass">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.check} /></svg>
-              <span>Type check passes</span>
-            </div>
+            {installs.map(([, cmds], i) => (
+              <div class="panel" role="tabpanel" id={`panel-${i}`} aria-labelledby={`tab-${i}`} hidden={i !== 0} data-copy={cmds.join('\n')}>
+                {cmds.map((c) => <div><span>$</span>{c}</div>)}
+              </div>
+            ))}
+            <button class="copy" type="button" aria-label="Copy commands">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d={I.copy} /></svg>
+            </button>
+            <p class="sr" role="status" id="copied"></p>
+          </div>
+
+          <div class="tools">
+            <p class="label"><b>/</b> Works with the compilers you already have</p>
+            <ul>{tools.map((t) => <li>{t}</li>)}</ul>
           </div>
         </div>
       </div>
 
-      <section id="how" class="wrap">
-        <div class="checks">
-          <h2>Three quiet checks while your AI works</h2>
-          <p class="lede">When everything is fine, you see nothing. HatchLock only speaks up when something is wrong, and it tells the AI exactly what to fix.</p>
-          <ol class="steps">
-            <li>
-              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d={icon.block} /></svg></span>
-              <div>
-                <h3>Before a file is written</h3>
-                <p>If the change would hide an error, it is stopped before it touches your code.</p>
-              </div>
-              <div class="term" role="img" aria-label="Example message: blocked, this edit would hide a type error in src/billing.ts"><b>[HatchLock Guardrail]</b> Blocked: this edit would hide a type error in src/billing.ts:
-2:// @ts-ignore
-Fix the type instead. If the suppression is truly needed, add "hatchlock-allow: &lt;reason&gt;" on the same line.</div>
-            </li>
-            <li>
-              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.file} /></svg></span>
-              <div>
-                <h3>After each edit</h3>
-                <p>The file that just changed gets a quick check with your own tools, such as pyright, shellcheck or gofmt.</p>
-              </div>
-              <div class="term" role="img" aria-label="Example message: check failed after editing scripts/deploy.sh"><b>[HatchLock Compiler Loop]</b> Check failed after editing scripts/deploy.sh. Fix this before moving on:
-line 14: syntax error: unexpected end of file</div>
-            </li>
-            <li>
-              <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon.flag} /></svg></span>
-              <div>
-                <h3>When the AI says it is done</h3>
-                <p>Your project's compiler runs once. If it finds errors, the AI goes back and fixes them before handing over.</p>
-              </div>
-              <div class="term" role="img" aria-label="Example message: the project does not pass its checks yet, with a TypeScript error"><b>[HatchLock Project Check]</b> The project does not pass its checks yet. Fix these errors before finishing:
-== tsc ==
-src/cart.ts(8,7): error TS2322: Type 'string' is not assignable to type 'number'.</div>
-            </li>
-          </ol>
-        </div>
-      </section>
-
-      <section id="blocks" class="wrap">
-        <h2>The shortcuts it stops</h2>
-        <p class="lede">These comments and casts tell the type checker to look away. HatchLock keeps new ones out of five languages.</p>
-        <dl class="langs">
-          {langs.map(([name, items]) => (
-            <div>
-              <dt>{name}</dt>
-              <dd>{items.map((i) => <code>{i}</code>)}</dd>
-            </div>
-          ))}
-        </dl>
-        <div class="aside">
-          <div>
-            <h3>Your existing code is left alone</h3>
-            <p>Only new shortcuts are stopped. Files that already have them keep working, and your AI can still edit around them.</p>
+      <section class="tinted">
+        <div class="wrap">
+          <h2>Type errors get fixed. <em>Not hidden.</em></h2>
+          <p class="lede">When an AI hits a type error, the quick way out is to tell the type checker to look away. HatchLock closes that way out and checks the result.</p>
+          <div class="cards">
+            {outcomes.map(([icon, title, text, href, link]) => (
+              <article class="card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I[icon]} /></svg>
+                <h3>{title}</h3>
+                <p>{text}</p>
+                <a class="more" href={href}>{link}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.arrow} /></svg></a>
+              </article>
+            ))}
           </div>
-          <div>
-            <h3>There is an honest way through</h3>
-            <p>Add <code>hatchlock-allow:</code> and a short reason on the same line. No reason, no pass.</p>
+          <div class="band">
+            <div>
+              <h3>Two commands.<br />No account.</h3>
+              <p>Free and open source under the MIT license.</p>
+              <a class="more" href="#install">See the install steps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.arrow} /></svg></a>
+            </div>
+            {stats.map(([small, big, unit, note]) => (
+              <div class="stat"><small>{small}</small><strong>{big}</strong><b>{unit}</b><span>{note}</span></div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="install" class="wrap install">
-        <div>
-          <h2>Add it to Claude Code in two steps</h2>
-          <p class="lede">Paste these into your terminal, one after the other. HatchLock starts working in your next session.</p>
-          <p class="fine">It needs <code>jq</code> and uses whichever compilers you already have. Using ChatGPT or Codex? The skills-only version is in the <a href={repo}>GitHub repo</a>.</p>
-        </div>
-        <div class="cmds">
-          {cmds.map(([label, cmd]) => (
-            <div class="cmd">
-              <span>{label}</span>
-              <code>{cmd}</code>
-              <button class="copy" type="button" data-copy={cmd}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d={icon.copy} /></svg>
-                <span>Copy</span><span class="sr"> {label.toLowerCase()} command</span>
-              </button>
+      <section id="how">
+        <div class="wrap">
+          <h2>How it works.</h2>
+          {steps.map((s, i) => (
+            <div class="step">
+              <p class="label"><b>0{i + 1}</b><span>{s.label}</span></p>
+              <div class="copy-col">
+                <h3>{s.title}</h3>
+                <p>{s.body}</p>
+                <a class="more" href={s.link[1]}>{s.link[0]}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.arrow} /></svg></a>
+              </div>
+              <div class="term">
+                <header><i></i><i></i><i></i><span>{s.term}</span></header>
+                <pre>{s.lines.map(([cls, text]) => <span class={cls}>{text + '\n'}</span>)}</pre>
+              </div>
             </div>
           ))}
-          <p class="sr" role="status" id="copied"></p>
         </div>
       </section>
 
-      <section class="wrap">
-        <h2>Five helpers come with it</h2>
-        <p class="lede">Type a command when you want one. The first runs by itself.</p>
-        <dl class="skills">
-          {skills.map(([name, text]) => (
-            <div>
-              <dt><code>{name}</code></dt>
-              <dd>{text}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <section id="faq" class="wrap">
-        <h2>Questions</h2>
-        <div class="faq">
-          {faqs.map(([q, a]) => (
-            <details>
-              <summary>{q}</summary>
-              <p>{a}</p>
-            </details>
-          ))}
+      <section id="blocks" class="tinted">
+        <div class="wrap">
+          <h2>The shortcuts it stops.</h2>
+          <p class="lede">These comments and casts tell the type checker to look away. HatchLock keeps new ones out of five languages.</p>
+          <div class="field">
+            {langs.map(([name, items]) => (
+              <div class="lang">
+                <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.code} /></svg>{name}</h3>
+                <ul>{items.map((i) => <li>{i}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+          <p class="notes"><span class="pill">Existing code</span> is left alone. <span class="pill">Declaration files</span> are skipped. <span class="pill">hatchlock-allow</span> with a reason lets one through.</p>
         </div>
       </section>
+
+      <section id="private" class="private">
+        <div class="wrap">
+          <h2>Private by design.</h2>
+          <p class="lede">HatchLock is a set of small scripts that run the tools already on your machine. It has no server to send anything to.</p>
+          <a class="btn navy" href={`${repo}/blob/main/PRIVACY.md`}>Read the privacy note</a>
+          <div class="cells">
+            {cells.map(([icon, text]) => (
+              <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I[icon]} /></svg>{text}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="wrap faq">
+          <h2>Frequently asked questions</h2>
+          <div>
+            {faqs.map(([q, a], i) => (
+              <details open={i === 0}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div class="closing">
+        <div class="wrap">
+          <h2>Fix the type. <em>Skip the shortcut.</em></h2>
+          <div class="cta">
+            <a class="btn sm" href="#install">Get HatchLock</a>
+            <a class="btn ghost sm" href={repo}>View on GitHub</a>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer>
       <div class="wrap">
         <div class="cols">
           <div>
-            <a class="brand" href={`${base}/`}>HatchLock</a>
-            <p>Made by Tahmid Bin Taslim Rafi. An independent project, not affiliated with or endorsed by Anthropic or OpenAI.</p>
+            <a class="brand" href={`${base}/`}><img src={`${base}/icon.svg`} alt="" width="40" height="40" />HatchLock</a>
+            <p class="about">Made by Tahmid Bin Taslim Rafi. An independent project, not affiliated with or endorsed by Anthropic or OpenAI.</p>
           </div>
-          <div>
-            <h3>Project</h3>
+          <div class="col">
+            <p class="label">Product</p>
             <ul>
-              <li><a href={repo}>GitHub</a></li>
-              <li><a href={`${repo}#readme`}>Documentation</a></li>
-              <li><a href={`${repo}/blob/main/LICENSE`}>MIT license</a></li>
+              <li><a href="#how">How it works</a></li>
+              <li><a href="#blocks">What it blocks</a></li>
+              <li><a href="#install">Install</a></li>
             </ul>
           </div>
-          <div>
-            <h3>Help</h3>
+          <div class="col">
+            <p class="label">Resources</p>
             <ul>
+              <li><a href={`${repo}#readme`}>Documentation</a></li>
+              <li><a href={repo}>GitHub</a></li>
               <li><a href={`${repo}/issues`}>Report a problem</a></li>
+            </ul>
+          </div>
+          <div class="col">
+            <p class="label">Legal</p>
+            <ul>
               <li><a href={`${repo}/blob/main/PRIVACY.md`}>Privacy</a></li>
+              <li><a href={`${repo}/blob/main/LICENSE`}>MIT license</a></li>
               <li><a href="https://buymeacoffee.com/tahmid">Buy me a coffee</a></li>
             </ul>
           </div>
         </div>
-        <p class="legal">Claude and Claude Code are trademarks of Anthropic. ChatGPT is a trademark of OpenAI.</p>
+        <p class="wordmark" aria-hidden="true">HatchLock</p>
+        <div class="legal">
+          <p class="label">© 2026 HatchLock</p>
+          <p class="label">Claude is a trademark of Anthropic. ChatGPT is a trademark of OpenAI.</p>
+        </div>
       </div>
     </footer>
 
     <script is:inline>
-      document.querySelectorAll('.copy').forEach((b) =>
-        b.addEventListener('click', async () => {
-          const label = b.querySelector('span');
-          try {
-            await navigator.clipboard.writeText(b.dataset.copy);
-            label.textContent = 'Copied';
-            document.getElementById('copied').textContent = 'Command copied';
-          } catch {
-            label.textContent = 'Select it';
-          }
-          setTimeout(() => (label.textContent = 'Copy'), 1800);
-        })
-      );
+      const tabs = [...document.querySelectorAll('[role=tab]')];
+      const panels = [...document.querySelectorAll('[role=tabpanel]')];
+      const select = (i) => {
+        tabs.forEach((t, j) => { t.setAttribute('aria-selected', j === i); t.tabIndex = j === i ? 0 : -1; });
+        panels.forEach((p, j) => (p.hidden = j !== i));
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(i));
+        t.addEventListener('keydown', (e) => {
+          const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!d) return;
+          const n = (i + d + tabs.length) % tabs.length;
+          select(n); tabs[n].focus();
+        });
+      });
+      document.querySelector('.copy').addEventListener('click', async () => {
+        const status = document.getElementById('copied');
+        try {
+          await navigator.clipboard.writeText(panels.find((p) => !p.hidden).dataset.copy);
+          status.textContent = 'Commands copied';
+          const b = document.querySelector('.copy'); b.classList.add('done'); setTimeout(() => b.classList.remove('done'), 1500);
+        } catch {
+          status.textContent = 'Copy failed. Select the text instead.';
+        }
+      });
     </script>
   </body>
 </html>

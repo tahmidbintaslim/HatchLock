@@ -161,13 +161,27 @@ A disabled language skips all three checks: the block before writing, the check 
 
 Organizations that set `allowManagedHooksOnly` in managed settings disable plugin hooks, including HatchLock's. The skills and language servers still work.
 
-## ChatGPT and Codex
+## Works with
 
-The four portable skills (`tight-diff`, `optimize`, `architect`, `clean`) also ship as a skills-only HatchLock plugin for ChatGPT/Codex. OpenAI's directory does not accept hooks or LSP servers, so that version gives guidance only: no blocking and no compiler checks. Maintainers build it with `./scripts/build-openai-zip.sh`.
+| Tool | Install | What you get |
+| :--- | :--- | :--- |
+| **Claude Code** | `claude plugin marketplace add tahmidbintaslim/HatchLock`, then `claude plugin install hatchlock@hatchlock-marketplace` | Everything |
+| **GitHub Copilot CLI** | `copilot plugin marketplace add tahmidbintaslim/HatchLock`, then `copilot plugin install hatchlock@hatchlock-marketplace` | Everything |
+| **Cursor** | Cursor Marketplace (pending), or add `hatchlock-mcp` | Blocking before writes, skills, rules |
+| **Grok Build** | `grok plugin marketplace add tahmidbintaslim/HatchLock` | Blocking before writes, skills |
+| **Devin (Windsurf)** | `devin plugins install tahmidbintaslim/HatchLock` | Everything |
+| **JetBrains Junie** | `/extensions marketplace add https://github.com/tahmidbintaslim/HatchLock` | Everything |
+| **Google Antigravity** | Build with `./scripts/build-antigravity.sh`, then `agy plugin install dist/antigravity/hatchlock` | Blocking before writes, end-of-turn check, skills |
+| **ChatGPT / Codex** | OpenAI plugin directory (skills only) | Skills as guidance |
+| **Any MCP client** (VS Code, Claude Desktop, Cline, Zed, Kiro and others) | [`hatchlock-mcp`](mcp/README.md) | Checks the agent can call, plus the skills |
 
-## Other editors
+Only Claude Code has been tested end to end. Copilot installs the plugin (verified). The other hosts are built to their published hook formats; please [report](https://github.com/tahmidbintaslim/HatchLock/issues) anything that doesn't work.
 
-`.cursor/rules/hatchlock-tight-diff.mdc` carries the same rules for Cursor and Windsurf (advisory only; no hooks).
+The skills follow the open [Agent Skills](https://agentskills.io) format, so you can also copy `skills/` into any tool that reads `.agents/skills/`.
+
+**Current docs:** `tight-diff` tells the agent to check the docs for the library version your project uses before calling an API. For live docs for every language, also add a docs server such as [Context7](https://github.com/upstash/context7).
+
+Maintainers: listing steps for every store are in [docs/LAUNCH.md](docs/LAUNCH.md).
 
 ## Website
 

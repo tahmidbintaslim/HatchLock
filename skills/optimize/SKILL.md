@@ -1,16 +1,16 @@
 ---
 name: optimize
-description: Optimizes application performance, LLM/AI pipelines, database queries, memory allocations, and hot-path algorithms using first-principles systems methodology. Use when profiling bottlenecks, reducing latency or token costs, eliminating N+1 queries, or speeding up slow code.
-when_to_use: When the user asks to optimize code, reduce latency, speed up an endpoint or script, optimize LLM prompts or token usage, fix N+1 SQL queries, reduce memory footprint, or runs /hatchlock:optimize.
-argument-hint: "[file-path, endpoint, query, or LLM pipeline]"
-effort: high
+description: >-
+  Optimizes application performance, LLM/AI pipelines, database queries, memory allocations, and hot-path algorithms using first-principles systems methodology. Use when profiling bottlenecks, reducing latency or token costs, eliminating N+1 queries, or speeding up slow code. Use when the user asks to optimize code, reduce latency, speed up an endpoint or script, optimize LLM prompts or token usage, fix N+1 SQL queries, reduce memory footprint, or runs /hatchlock:optimize.
+license: MIT
+metadata:
+  argument-hint: "[file-path, endpoint, query, or LLM pipeline]"
 ---
-
 # HatchLock Optimize: First-Principles Systems & AI Performance
 
 Apply a first-principles, `llm.c`-style performance philosophy: **strip away opaque framework layers, respect the hardware and network hierarchy, measure before and after, and maximize throughput per line of code.**
 
-Target scope (if specified): **$ARGUMENTS**
+Target: the system, file or task the user named (if your tool passes arguments, they appear here: `$ARGUMENTS`).
 
 ## Phase 1: Baseline Measurement & Bottleneck Isolation
 1. **Classify the Bottleneck:** Determine whether the target is **I/O & Network Bound** (N+1 queries, sequential network calls), **LLM / Token Bound** (bloated prompts, broken prefix caching), **Memory Bound** ($O(N^2)$ copies, unstreamed payloads), or **CPU Bound** (linear scans, unvectorized loops).

@@ -30,6 +30,14 @@ for skill in tight-diff optimize architect clean doctor; do
   grep -q "^name: $skill$" "skills/$skill/SKILL.md" || fail "skills/$skill/SKILL.md name mismatch"
 done
 echo "  [PASS] Plugin manifest, 6 LSP servers, and 5 skills are well-formed"
+# Skills must follow the open Agent Skills spec so every host (and claude.ai uploads) accepts them.
+if python3 -c 'import skills_ref' 2>/dev/null; then
+  for d in skills/*/; do python3 -m skills_ref.cli validate "$d" >/dev/null || fail "skill not spec-valid: $d"; done
+  echo "  [PASS] All skills pass the Agent Skills validator"
+else
+  ! grep -lE '^(when_to_use|argument-hint|effort):' skills/*/SKILL.md || fail "Claude-only frontmatter field in a skill"
+  echo "  [PASS] No Claude-only skill fields (skills-ref not installed)"
+fi
 
 # 3. Fixtures
 TMP_DIR=$(mktemp -d)
@@ -63,6 +71,8 @@ printf 'if true; then\n' > "$TMP_DIR/broken.sh"
 
 # PreToolUse escape-hatch guard
 pre 2 "Write with @ts-ignore blocked"            "$(write_json "$TMP_DIR/bloat.ts" $'// @ts-ignore\nexport const x = 1;')"
+# Grok Build sends camelCase payloads and GROK_* variables.
+pre 2 "Grok payload (toolInput, camelCase) is guarded" "$(jq -nc --arg f "$TMP_DIR/g.ts" '{toolName:"Write",toolInput:{filePath:$f,content:"// @ts-ignore"}}')"
 CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="go, typescript" pre 0 "Opt-out: typescript disabled skips the guard" "$(write_json "$TMP_DIR/bloat.ts" '// @ts-ignore')"
 CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="go" pre 2 "Opt-out: other languages still guarded" "$(write_json "$TMP_DIR/bloat.ts" '// @ts-ignore')"
 pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'const y = x as any;')"
@@ -85,6 +95,7 @@ pre 0 ".d.ts declarations skipped"               "$(write_json "$TMP_DIR/x.d.ts"
 # PostToolUse per-file check
 post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
 post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
+CLAUDE_PROJECT_DIR= GROK_WORKSPACE_ROOT="$TMP_DIR" check 2 "Grok workspace root + toolInput payload" verify-edit.sh "$(jq -nc --arg f "$TMP_DIR/broken.sh" '{toolName:"Edit",toolInput:{filePath:$f}}')"
 CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="shell" post 0 "Opt-out: shell disabled skips the edit check" "$TMP_DIR/broken.sh"
 post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
 printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
@@ -144,6 +155,8 @@ if ! grep -q -- '--tsBuildInfoFile' "$TMP_DIR/tsc-args" || grep -q -- "--tsBuild
 fi
 echo "  [PASS] tsc build-info kept out of the repo"
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "stop_hook_active: no loop"         '{"stop_hook_active":true}'
+CLAUDE_PROJECT_DIR="$REPO" stop 0 "stopHookActive (camelCase): no loop" '{"stopHookActive":true}'
+CLAUDE_PROJECT_DIR= GROK_WORKSPACE_ROOT="$REPO" stop 2 "Grok workspace root for project check" '{}'
 
 # Monorepo: project dir is a subdirectory of the git repo
 MONO="$TMP_DIR/mono"; mkdir -p "$MONO/infra/app/.terraform" "$MONO/infra/svc" "$TMP_DIR/bin2"

@@ -7,7 +7,7 @@ set -uo pipefail
 
 ALL=false
 [[ "${1:-}" == "--all" ]] && ALL=true
-ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+ROOT="${CLAUDE_PROJECT_DIR:-${GROK_WORKSPACE_ROOT:-$PWD}}"
 
 # Languages present in the project: tracked + untracked files in a git repo,
 # otherwise a shallow scan that skips dependency and build folders.

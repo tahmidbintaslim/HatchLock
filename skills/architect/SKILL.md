@@ -1,14 +1,14 @@
 ---
 name: architect
-description: Designs lean, data-first software architectures, database schemas, API contracts, and Architecture Decision Records (ADRs) with explicit trade-off matrices. Use when planning new features, designing system architecture, evaluating tech stacks, modeling schemas, or refactoring module boundaries.
-when_to_use: When the user asks to architect a system, design a feature or database schema, compare architectural options, write an ADR, decouple modules, or runs /hatchlock:architect.
-argument-hint: "[system, feature, or architectural decision]"
-effort: high
+description: >-
+  Designs lean, data-first software architectures, database schemas, API contracts, and Architecture Decision Records (ADRs) with explicit trade-off matrices. Use when planning new features, designing system architecture, evaluating tech stacks, modeling schemas, or refactoring module boundaries. Use when the user asks to architect a system, design a feature or database schema, compare architectural options, write an ADR, decouple modules, or runs /hatchlock:architect.
+license: MIT
+metadata:
+  argument-hint: "[system, feature, or architectural decision]"
 ---
-
 # HatchLock Architect: Data-First System Design & Trade-Off Engine
 
-Target architecture scope: **$ARGUMENTS**
+Target: the system, file or task the user named (if your tool passes arguments, they appear here: `$ARGUMENTS`).
 
 ## Step 1: Data Structures & State First ("Show Me Your Tables")
 1. **Core Domain Schemas:** Define exact database tables (SQL DDL / Prisma / migrations) or memory structs first, including primary keys, foreign keys, and composite indexes.

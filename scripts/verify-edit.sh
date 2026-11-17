@@ -7,13 +7,13 @@ set -uo pipefail
 PAYLOAD=$(cat)
 command -v jq >/dev/null 2>&1 || exit 0
 
-FILE_PATH=$(jq -r '.tool_input.file_path // empty' <<<"$PAYLOAD")
+FILE_PATH=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.file_path // $t.filePath // empty' <<<"$PAYLOAD")
 [[ -n "$FILE_PATH" && -f "$FILE_PATH" ]] || exit 0
 
 # Only check files inside the project; never follow "..".
 [[ "$FILE_PATH" == *"/../"* || "$FILE_PATH" == "../"* ]] && exit 0
 # Compare physical paths so trailing slashes and symlinks (macOS /tmp) still match.
-ROOT=$(cd -P "${CLAUDE_PROJECT_DIR:-$PWD}" 2>/dev/null && pwd -P) || exit 0
+ROOT=$(cd -P "${CLAUDE_PROJECT_DIR:-${GROK_WORKSPACE_ROOT:-$PWD}}" 2>/dev/null && pwd -P) || exit 0
 FILE_DIR=$(cd -P "$(dirname "$FILE_PATH")" 2>/dev/null && pwd -P) || exit 0
 [[ "$FILE_DIR/" == "$ROOT"/* ]] || exit 0
 

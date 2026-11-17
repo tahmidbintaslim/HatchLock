@@ -9,9 +9,9 @@ set -uo pipefail
 PAYLOAD=$(cat)
 command -v jq >/dev/null 2>&1 || exit 0
 # Already continuing because of this hook: don't trap Claude in a loop.
-[[ "$(jq -r '.stop_hook_active // false' <<<"$PAYLOAD")" == "true" ]] && exit 0
+[[ "$(jq -r '.stop_hook_active // .stopHookActive // false' <<<"$PAYLOAD")" == "true" ]] && exit 0
 
-ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+ROOT="${CLAUDE_PROJECT_DIR:-${GROK_WORKSPACE_ROOT:-$PWD}}"
 cd "$ROOT" 2>/dev/null || exit 0
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 

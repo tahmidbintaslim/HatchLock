@@ -8,7 +8,10 @@ command -v jq >/dev/null 2>&1 || exit 0
 
 # NotebookEdit sends .notebook_path; Write/Edit send .file_path.
 FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$PAYLOAD")
+# shellcheck source=scripts/lang.sh
+. "$(dirname "$0")/lang.sh"
 EXT=$(tr '[:upper:]' '[:lower:]' <<<"${FILE_PATH##*.}")
+lang_disabled "$(lang_of "$FILE_PATH")" && exit 0
 [[ "$FILE_PATH" == *.d.ts ]] && exit 0  # ambient declarations legitimately use `any`
 
 # Per-language patterns (POSIX ERE, portable to BSD grep).
@@ -43,6 +46,6 @@ fi
 {
   echo "[HatchLock Guardrail] Blocked: this edit would hide a type error in $FILE_PATH:"
   head -n 10 <<<"$MATCHES"
-  echo "Fix the type instead. If the suppression is truly needed, add \"hatchlock-allow: <reason>\" on the same line."
+  echo "Fix the type instead. Only add \"hatchlock-allow: <reason>\" on the same line if the user explicitly asked for this suppression or the line is a test that expects a type error; never add it on your own to get past this check."
 } >&2
 exit 2

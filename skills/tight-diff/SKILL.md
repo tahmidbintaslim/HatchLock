@@ -1,6 +1,6 @@
 ---
 name: tight-diff
-description: Keeps every code change minimal, verified against the language server and compiler, and free of type-checker escape hatches. Use whenever writing, editing, refactoring, debugging, or reviewing code in any language.
+description: Rules for every code change, including one-line fixes - keep the diff minimal, verify it with the compiler, and fix type errors instead of silencing them. Use before writing, editing, fixing, refactoring, debugging, or reviewing code in any language.
 when_to_use: When implementing features, fixing bugs, refactoring, editing files, or reviewing diffs, or when the user says "keep it simple", "no bloat", "tight diff", or "surgical edit".
 argument-hint: "[optional-target-file-or-task]"
 effort: high
@@ -8,7 +8,7 @@ effort: high
 
 # Tight Diff: Minimal, Compiler-Verified Changes
 
-Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` must never be added (HatchLock's hooks block them before the write lands). Fix the type. If suppression is truly unavoidable (e.g. a test asserting a type error), put `hatchlock-allow: <reason>` on the same line.
+Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` must never be added (HatchLock's hooks block them before the write lands). Fix the type. Only when the user explicitly asks for a suppression, or a test must assert a type error, put `hatchlock-allow: <reason>` on the same line. Never add it on your own to get past the check. If the user asks for a suppression, first say what the real fix would be.
 
 If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
 

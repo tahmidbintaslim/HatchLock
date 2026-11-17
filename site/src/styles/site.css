@@ -226,3 +226,6 @@ footer :focus-visible { outline-color: #fff; }
   .tabs { padding-right: 3rem; }
   .panel { padding-right: 1rem; }
 }
+.term pre.typing > span:not([hidden]):last-of-type::after { content: '▍'; color: var(--term-muted); animation: blink 1s steps(1) infinite; }
+.term pre > span[hidden] { display: none; }
+@keyframes blink { 50% { opacity: 0; } }

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.tahmidbintaslim/hatchlock",
+  "title": "HatchLock",
+  "description": "Stops AI code from hiding type errors: flags @ts-ignore/as any and runs your local compilers.",
+  "repository": { "url": "https://github.com/tahmidbintaslim/HatchLock", "source": "github", "subfolder": "mcp" },
+  "websiteUrl": "https://tahmidbintaslim.github.io/HatchLock/",
+  "version": "1.2.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "hatchlock-mcp",
+      "version": "1.2.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}

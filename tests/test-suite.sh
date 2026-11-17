@@ -206,7 +206,12 @@ for m in .grok-plugin/plugin.json .cursor-plugin/plugin.json; do
   [[ "$(jq -r .version "$m")" == "$(jq -r .version .claude-plugin/plugin.json)" ]] || fail "$m version out of sync"
 done
 jq -e '.hooks.preToolUse[0].matcher=="Write"' hooks/cursor-hooks.json >/dev/null || fail "Cursor hooks must guard Write"
-echo "  [PASS] Grok and Cursor manifests in sync"
+for v in "$(jq -r .version mcp/package.json)" "$(jq -r .version mcp/server.json)" "$(jq -r '.packages[0].version' mcp/server.json)"; do
+  [[ "$v" == "$(jq -r .version .claude-plugin/plugin.json)" ]] || fail "MCP version $v out of sync"
+done
+[[ "$(jq -r .mcpName mcp/package.json)" == "$(jq -r .name mcp/server.json)" ]] || fail "mcpName must match server.json name"
+grep -q "hatchlock-mcp@$(jq -r .version mcp/package.json)" mcp/README.md || fail "MCP README pins a stale version"
+echo "  [PASS] Grok, Cursor and MCP manifests in sync"
 
 # Branding & policy
 ! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.astro --exclude-dir=.impeccable --exclude=PRODUCT.md . || fail "Karpathy branding outside README attribution"

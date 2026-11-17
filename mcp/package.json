@@ -1,0 +1,26 @@
+{
+  "name": "hatchlock-mcp",
+  "version": "1.2.0",
+  "description": "HatchLock's type-safety checks as a local MCP server: catch @ts-ignore, as any and # type: ignore, and run your own compilers.",
+  "mcpName": "io.github.tahmidbintaslim/hatchlock",
+  "type": "module",
+  "bin": { "hatchlock-mcp": "index.mjs" },
+  "files": ["index.mjs", "scripts/", "skills/", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "prepack": "rm -rf scripts skills && mkdir scripts && cp ../scripts/guard-escape-hatches.sh ../scripts/verify-edit.sh ../scripts/verify-project.sh ../scripts/lsp-doctor.sh ../scripts/lang.sh scripts/ && cp -R ../skills skills && cp ../LICENSE .",
+    "test": "node --test test.mjs"
+  },
+  "keywords": ["mcp", "mcp-server", "hatchlock", "type-safety", "typescript", "python", "linter"],
+  "homepage": "https://tahmidbintaslim.github.io/HatchLock/",
+  "repository": { "type": "git", "url": "https://github.com/tahmidbintaslim/HatchLock.git", "directory": "mcp" },
+  "license": "MIT",
+  "author": "Tahmid Bin Taslim Rafi",
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0"
+  }
+}

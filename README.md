@@ -187,6 +187,12 @@ cd site && npm install && npm run dev
 claude plugin validate . --strict
 ```
 
+Behaviour tests (uses your Claude credentials, about $0.40 for all cases at 3 runs each):
+
+```bash
+claude plugin eval . --trust-plugin --allow-tools Write Edit --ablation none
+```
+
 ## Privacy
 
 HatchLock collects and sends no data. See [PRIVACY.md](PRIVACY.md).

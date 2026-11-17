@@ -46,6 +46,6 @@ fi
 {
   echo "[HatchLock Guardrail] Blocked: this edit would hide a type error in $FILE_PATH:"
   head -n 10 <<<"$MATCHES"
-  echo "Fix the type instead. If the suppression is truly needed, add \"hatchlock-allow: <reason>\" on the same line."
+  echo "Fix the type instead. Only add \"hatchlock-allow: <reason>\" on the same line if the user explicitly asked for this suppression or the line is a test that expects a type error; never add it on your own to get past this check."
 } >&2
 exit 2

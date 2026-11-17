@@ -42,7 +42,7 @@ const steps = [
     label: 'Block', title: 'A shortcut is stopped before it is written',
     body: 'HatchLock reads each change before it touches your file. If the change adds a comment or cast that hides a type error, the write is refused and the AI gets a one-line instruction to fix the real problem.',
     link: ['See what is blocked', '#blocks'], term: 'claude code · edit src/billing.ts',
-    lines: [['dim', '> Edit src/billing.ts'], ['dim', '  + // @ts-ignore'], ['bad', '✕ [HatchLock Guardrail] Blocked: this edit would hide a type error in src/billing.ts:'], ['', '  2:// @ts-ignore'], ['', '  Fix the type instead. If the suppression is truly needed, add "hatchlock-allow: <reason>" on the same line.']],
+    lines: [['dim', '> Edit src/billing.ts'], ['dim', '  + // @ts-ignore'], ['bad', '✕ [HatchLock Guardrail] Blocked: this edit would hide a type error in src/billing.ts:'], ['', '  2:// @ts-ignore'], ['', '  Fix the type instead. Only add "hatchlock-allow: <reason>" on the same line if the user explicitly asked for this suppression or the line is a test that expects a type error.']],
   },
   {
     label: 'Check', title: 'Each edit gets a quick check',

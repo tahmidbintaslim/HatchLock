@@ -27,7 +27,7 @@ case "$EXT" in
 esac
 
 # Write sends .content, Edit sends .new_string, NotebookEdit sends .new_source.
-NEW=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.content // $t.new_string // $t.newString // $t.new_source // $t.newSource // empty' <<<"$PAYLOAD")
+NEW=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.content // $t.contents // $t.new_string // $t.newString // $t.new_source // $t.newSource // empty' <<<"$PAYLOAD")
 # Suppressions already present (Edit's old_string, or the file being overwritten)
 # are not new: Claude may keep them while editing nearby code.
 OLD=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.old_string // $t.oldString // empty' <<<"$PAYLOAD")

@@ -176,6 +176,38 @@ touch "$MONO/infra/pom.xml"; echo 'class A {}' > "$MONO/infra/A.java"
 PATH="$TMP_DIR/bin2:$PATH" CLAUDE_PROJECT_DIR="$MONO/infra" stop 0 "javac skipped in Maven/Gradle projects" '{"stop_hook_active":false}'
 ! grep -n 'mapfile' scripts/*.sh || fail "mapfile is unavailable in macOS bash 3.2"
 
+# Cursor sends tool_input with "contents" for Write
+pre 2 "Cursor Write payload (contents) is guarded" "$(jq -nc --arg f "$TMP_DIR/c.ts" '{tool_name:"Write",tool_input:{file_path:$f,contents:"const x = y as any;"}}')"
+
+# Google Antigravity adapter: JSON in, JSON out, always exit 0
+ag() { # ag <mode> <payload> -> prints adapter JSON
+  ./scripts/antigravity-hook.sh "$1" <<<"$2"
+}
+AGW=$(jq -nc --arg f "$TMP_DIR/a.ts" '{toolCall:{name:"write_to_file",args:{TargetFile:$f,CodeContent:"// @ts-ignore\nlet x = 1;"}}}')
+[[ "$(ag pre "$AGW" | jq -r .decision)" == "deny" ]] || fail "Antigravity: write_to_file with @ts-ignore should be denied"
+AGR=$(jq -nc --arg f "$TMP_DIR/a.ts" '{toolCall:{name:"multi_replace_file_content",args:{TargetFile:$f,ReplacementChunks:[{TargetContent:"a",ReplacementContent:"b as any;"}]}}}')
+[[ "$(ag pre "$AGR" | jq -r .decision)" == "deny" ]] || fail "Antigravity: multi_replace with as any should be denied"
+AGOK=$(jq -nc --arg f "$TMP_DIR/a.ts" '{toolCall:{name:"replace_file_content",args:{TargetFile:$f,TargetContent:"a",ReplacementContent:"const b = 1;"}}}')
+[[ "$(ag pre "$AGOK")" == "{}" ]] || fail "Antigravity: clean replace should pass with {}"
+AGS=$(jq -nc --arg r "$REPO" '{conversationId:"t1",workspacePaths:[$r]}')
+[[ "$(ag stop "$AGS" | jq -r .decision)" == "continue" ]] || fail "Antigravity: failing project should continue once"
+[[ "$(ag stop "$AGS")" == "{}" ]] || fail "Antigravity: second stop in a row must not loop"
+echo "  [PASS] Antigravity adapter: denies escape hatches, continues once on project errors"
+
+a=$(./scripts/build-antigravity.sh)
+for f in plugin.json hooks.json skills/tight-diff/SKILL.md scripts/antigravity-hook.sh scripts/guard-escape-hatches.sh assets/logo.png README.md; do [[ -e "$a/$f" ]] || fail "Antigravity package missing $f"; done
+jq -e '.name=="hatchlock" and .displayName and .version and .logo and (.suggestedPrompts|length)<=3 and .author' "$a/plugin.json" >/dev/null || fail "Antigravity plugin.json incomplete"
+jq -e '.hatchlock.PreToolUse[0].matcher | test("write_to_file")' "$a/hooks.json" >/dev/null || fail "Antigravity hooks.json matcher"
+[[ ! -e "$a/hooks/hooks.json" && ! -e "$a/.claude-plugin" ]] || fail "Antigravity package must not carry Claude layout"
+echo "  [PASS] Antigravity package builds"
+
+# Host manifests stay in sync
+for m in .grok-plugin/plugin.json .cursor-plugin/plugin.json; do
+  [[ "$(jq -r .version "$m")" == "$(jq -r .version .claude-plugin/plugin.json)" ]] || fail "$m version out of sync"
+done
+jq -e '.hooks.preToolUse[0].matcher=="Write"' hooks/cursor-hooks.json >/dev/null || fail "Cursor hooks must guard Write"
+echo "  [PASS] Grok and Cursor manifests in sync"
+
 # Branding & policy
 ! grep -rniIE 'karpathy|andrej' --exclude=README.md --exclude=test-suite.sh --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.astro --exclude-dir=.impeccable --exclude=PRODUCT.md . || fail "Karpathy branding outside README attribution"
 ! grep -rniIE 'polyglot' --exclude-dir=docs --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.astro --exclude-dir=.impeccable --exclude=PRODUCT.md --exclude=README.md --exclude=test-suite.sh . | grep -v 'claude-code-polyglot' || fail "stale 'polyglot' name"

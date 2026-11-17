@@ -1,7 +1,7 @@
 ---
 name: tight-diff
 description: >-
-  Rules for every code change, including one-line fixes - keep the diff minimal, verify it with the compiler, and fix type errors instead of silencing them. Use before writing, editing, fixing, refactoring, debugging, or reviewing code in any language. Use when implementing features, fixing bugs, refactoring, editing files, or reviewing diffs, or when the user says "keep it simple", "no bloat", "tight diff", or "surgical edit".
+  Load before any code change, even a one-line fix. Keeps the diff minimal, verifies it with the compiler, and fixes type errors instead of silencing them. Applies to writing, editing, fixing, refactoring, debugging and reviewing code in any language, and to requests like "keep it simple", "no bloat" or "surgical edit".
 license: MIT
 metadata:
   argument-hint: "[optional-target-file-or-task]"

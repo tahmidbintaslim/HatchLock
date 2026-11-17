@@ -95,7 +95,7 @@ pre 0 ".d.ts declarations skipped"               "$(write_json "$TMP_DIR/x.d.ts"
 # PostToolUse per-file check
 post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
 post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
-CLAUDE_PROJECT_DIR= GROK_WORKSPACE_ROOT="$TMP_DIR" check 2 "Grok workspace root + toolInput payload" verify-edit.sh "$(jq -nc --arg f "$TMP_DIR/broken.sh" '{toolName:"Edit",toolInput:{filePath:$f}}')"
+CLAUDE_PROJECT_DIR='' GROK_WORKSPACE_ROOT="$TMP_DIR" check 2 "Grok workspace root + toolInput payload" verify-edit.sh "$(jq -nc --arg f "$TMP_DIR/broken.sh" '{toolName:"Edit",toolInput:{filePath:$f}}')"
 CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="shell" post 0 "Opt-out: shell disabled skips the edit check" "$TMP_DIR/broken.sh"
 post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
 printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
@@ -156,7 +156,7 @@ fi
 echo "  [PASS] tsc build-info kept out of the repo"
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "stop_hook_active: no loop"         '{"stop_hook_active":true}'
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "stopHookActive (camelCase): no loop" '{"stopHookActive":true}'
-CLAUDE_PROJECT_DIR= GROK_WORKSPACE_ROOT="$REPO" stop 2 "Grok workspace root for project check" '{}'
+CLAUDE_PROJECT_DIR='' GROK_WORKSPACE_ROOT="$REPO" stop 2 "Grok workspace root for project check" '{}'
 
 # Monorepo: project dir is a subdirectory of the git repo
 MONO="$TMP_DIR/mono"; mkdir -p "$MONO/infra/app/.terraform" "$MONO/infra/svc" "$TMP_DIR/bin2"

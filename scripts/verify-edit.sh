@@ -17,6 +17,10 @@ ROOT=$(cd -P "${CLAUDE_PROJECT_DIR:-$PWD}" 2>/dev/null && pwd -P) || exit 0
 FILE_DIR=$(cd -P "$(dirname "$FILE_PATH")" 2>/dev/null && pwd -P) || exit 0
 [[ "$FILE_DIR/" == "$ROOT"/* ]] || exit 0
 
+# shellcheck source=scripts/lang.sh
+. "$(dirname "$0")/lang.sh"
+lang_disabled "$(lang_of "$FILE_PATH")" && exit 0
+
 has() { command -v "$1" >/dev/null 2>&1; }
 OUTPUT=""
 STATUS=0

@@ -3,6 +3,9 @@
 # uncommitted changes. Exit 2 makes Claude continue and fix the errors.
 set -uo pipefail
 
+# shellcheck source=scripts/lang.sh
+. "$(dirname "$0")/lang.sh"
+
 PAYLOAD=$(cat)
 command -v jq >/dev/null 2>&1 || exit 0
 # Already continuing because of this hook: don't trap Claude in a loop.
@@ -25,20 +28,20 @@ run() { # run <label> <cmd...>: append output of failing commands to REPORT
   REPORT+="== $label =="$'\n'"$out"$'\n'
 }
 
-if changed 'ts|tsx|js|jsx|mjs|cjs|vue' && [[ -f tsconfig.json && -x node_modules/.bin/tsc ]]; then
+if ! lang_disabled typescript && changed 'ts|tsx|js|jsx|mjs|cjs|vue' && [[ -f tsconfig.json && -x node_modules/.bin/tsc ]]; then
   # Keep the incremental build-info file out of the user's repo.
   CACHE="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}}"
   BUILDINFO="$CACHE/hatchlock-$(cksum <<<"$ROOT" | cut -d' ' -f1).tsbuildinfo"
   run "tsc" node_modules/.bin/tsc --noEmit --pretty false --incremental --tsBuildInfoFile "$BUILDINFO"
 fi
-if changed 'rs' && [[ -f Cargo.toml ]] && has cargo; then
+if ! lang_disabled rust && changed 'rs' && [[ -f Cargo.toml ]] && has cargo; then
   run "cargo check" cargo check --message-format=short
 fi
-if changed 'go' && [[ -f go.mod ]] && has go; then
+if ! lang_disabled go && changed 'go' && [[ -f go.mod ]] && has go; then
   run "go vet" go vet ./...
 fi
 # Maven/Gradle projects need their classpath; bare javac would fail every file.
-if changed 'java' && has javac && ! compgen -G "pom.xml" >/dev/null && ! compgen -G "build.gradle*" >/dev/null; then
+if ! lang_disabled java && changed 'java' && has javac && ! compgen -G "pom.xml" >/dev/null && ! compgen -G "build.gradle*" >/dev/null; then
   JAVA=()
   while IFS= read -r f; do [[ -f "$f" ]] && JAVA+=("$f"); done < <(grep -E '\.java$' <<<"$CHANGED")
   if (( ${#JAVA[@]} )); then
@@ -47,13 +50,13 @@ if changed 'java' && has javac && ! compgen -G "pom.xml" >/dev/null && ! compgen
     rm -rf "$TMP_OUT"
   fi
 fi
-if changed 'cs' && compgen -G "*.csproj" >/dev/null && has dotnet; then
+if ! lang_disabled csharp && changed 'cs' && compgen -G "*.csproj" >/dev/null && has dotnet; then
   run "dotnet build" dotnet build --no-restore -v q
 fi
-if changed 'swift' && [[ -f Package.swift ]] && has swift; then
+if ! lang_disabled swift && changed 'swift' && [[ -f Package.swift ]] && has swift; then
   run "swift build" swift build
 fi
-if changed 'tf|tfvars' && has terraform; then
+if ! lang_disabled terraform && changed 'tf|tfvars' && has terraform; then
   while IFS= read -r dir; do
     # validate needs `terraform init` first; skip uninitialized directories.
     [[ -d "$dir/.terraform" ]] && run "terraform validate ($dir)" terraform -chdir="$dir" validate -no-color

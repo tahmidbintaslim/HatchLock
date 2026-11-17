@@ -125,7 +125,7 @@ For TypeScript, Python, Rust, Go, C/C++, Java, C#, PHP, Ruby, Swift, Kotlin and 
 claude plugin install typescript-lsp@claude-plugins-official
 ```
 
-Run `/hatchlock:doctor` to see exactly what is installed and what to add.
+Run `/hatchlock:doctor` to see what is installed and what to add for the languages in your project (`/hatchlock:doctor --all` lists every language).
 
 **Cloud sessions:** Claude Code does not start language servers in cloud sessions. The hooks still run.
 
@@ -148,6 +148,14 @@ Run `/hatchlock:doctor` to see exactly what is installed and what to add.
 3. "/hatchlock:clean `lib/report_builder.py`, then confirm behaviour is unchanged."
 
 ---
+
+## Settings
+
+**Disabled languages.** Turn HatchLock off for languages you don't want checked. When you enable the plugin, Claude Code asks for this setting; you can change it later in `/plugin`. Enter a comma-separated list, for example `go, rust`.
+
+Names: `typescript`, `python`, `rust`, `go`, `cpp`, `zig`, `java`, `csharp`, `php`, `ruby`, `elixir`, `swift`, `kotlin`, `dart`, `lua`, `shell`, `terraform`, `r`.
+
+A disabled language skips all three checks: the block before writing, the check after each edit, and the end-of-turn project check.
 
 ## Enterprise
 

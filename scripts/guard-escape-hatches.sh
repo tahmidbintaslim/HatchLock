@@ -8,7 +8,10 @@ command -v jq >/dev/null 2>&1 || exit 0
 
 # NotebookEdit sends .notebook_path; Write/Edit send .file_path.
 FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$PAYLOAD")
+# shellcheck source=scripts/lang.sh
+. "$(dirname "$0")/lang.sh"
 EXT=$(tr '[:upper:]' '[:lower:]' <<<"${FILE_PATH##*.}")
+lang_disabled "$(lang_of "$FILE_PATH")" && exit 0
 [[ "$FILE_PATH" == *.d.ts ]] && exit 0  # ambient declarations legitimately use `any`
 
 # Per-language patterns (POSIX ERE, portable to BSD grep).

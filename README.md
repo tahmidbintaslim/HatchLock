@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://tahmidbintaslim.github.io/HatchLock/"><img src="assets/banner.png" alt="HatchLock: stop your AI from hiding type errors. Without HatchLock, a // @ts-ignore comment hides the error. With HatchLock, the comment is blocked and the type is fixed." width="100%"></a>
+  <a href="https://tahmidbintaslim.github.io/HatchLock/"><img src="assets/banner.png" alt="HatchLock: stop your AI from hiding type errors." width="100%"></a>
 </p>
 
 # HatchLock

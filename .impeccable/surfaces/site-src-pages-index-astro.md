@@ -24,3 +24,8 @@ FIRST VIEWPORT: Left half: headline "Stop your AI from hiding type errors" (abou
 FORM: Calm consumer-extension product page in the manner of momentumdash.com. seed: none (pinned) "I already gave you a reference website https://momentumdash.com/" and "Easy, Customer Friendly and Similar to other top chrome extensions".
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+
+## Revision 2026-11-16
+
+The owner rejected the first direction and pinned a new one: "Follow this website and make it same https://www.shiplight.ai/", keeping only the brand (icon, colours). The page was rebuilt to that layout. seed: none (pinned).

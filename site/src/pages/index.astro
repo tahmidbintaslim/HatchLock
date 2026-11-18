@@ -22,6 +22,9 @@ const I = {
   code: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14',
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5z',
   user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5M4 4l16 16',
+  sun: 'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+  moon: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z',
+  replay: 'M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4',
   wifi: 'M3 9a13 13 0 0 1 18 0M6.5 12.5a8 8 0 0 1 11 0M10 16a3 3 0 0 1 4 0M4 4l16 16',
 };
 
@@ -106,6 +109,9 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
     <meta property="og:title" content="HatchLock: stop your AI from hiding type errors" />
     <meta property="og:description" content="Blocks @ts-ignore, as any and # type: ignore before they are written. Free and open source." />
     <meta name="theme-color" content="#4a43d8" />
+    <script is:inline>
+      try { const t = localStorage.getItem('hatchlock-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+    </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -117,6 +123,10 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
           <a href="#blocks">What it blocks</a>
           <a href="#faq">Questions</a>
         </div>
+        <button class="theme" type="button" aria-label="Switch to dark theme">
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.moon} /></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.sun} /></svg>
+        </button>
         <a class="btn ghost sm" href={repo}>GitHub</a>
         <a class="btn sm" href="#install">Get HatchLock</a>
       </nav>
@@ -141,24 +151,6 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
           <div class="cta">
             <a class="btn" href="#install">Get HatchLock</a>
             <a class="btn ghost" href={repo}>View on GitHub</a>
-          </div>
-
-          <p class="hint" id="install">Install into Claude Code. Using ChatGPT or Codex? <a href={`${repo}#chatgpt-and-codex`}>See the skills-only version</a>.</p>
-          <div class="install">
-            <div class="tabs" role="tablist" aria-label="Install method">
-              {installs.map(([name], i) => (
-                <button role="tab" type="button" id={`tab-${i}`} aria-controls={`panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{name}</button>
-              ))}
-            </div>
-            {installs.map(([, cmds], i) => (
-              <div class="panel" role="tabpanel" id={`panel-${i}`} aria-labelledby={`tab-${i}`} hidden={i !== 0} data-copy={cmds.join('\n')}>
-                {cmds.map((c) => <div><span>$</span>{c}</div>)}
-              </div>
-            ))}
-            <button class="copy" type="button" aria-label="Copy commands">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d={I.copy} /></svg>
-            </button>
-            <p class="sr" role="status" id="copied"></p>
           </div>
 
           <div class="tools">
@@ -207,11 +199,42 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
                 <a class="more" href={s.link[1]}>{s.link[0]}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.arrow} /></svg></a>
               </div>
               <div class="term">
-                <header><i></i><i></i><i></i><span>{s.term}</span></header>
+                <header><i></i><i></i><i></i><span>{s.term}</span>
+                  <button class="replay" type="button" aria-label={`Replay demo: ${s.title}`} hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.replay} /></svg>Replay
+                  </button>
+                </header>
                 <pre>{s.lines.map(([cls, text]) => <span class={cls}>{text + '\n'}</span>)}</pre>
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section id="install" class="install-section">
+        <div class="wrap install-grid">
+          <div>
+            <h2>Install in <em>two commands.</em></h2>
+            <p class="lede">Paste them into your terminal. HatchLock starts working in your next Claude Code session. No account, nothing to configure.</p>
+            <p class="fine">Using Copilot, Cursor, Grok or ChatGPT? <a href={`${repo}#works-with`}>See every supported tool</a>.</p>
+          </div>
+                        <div class="install">
+              <div class="tabs" role="tablist" aria-label="Install method">
+                {installs.map(([name], i) => (
+                  <button role="tab" type="button" id={`tab-${i}`} aria-controls={`panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{name}</button>
+                ))}
+              </div>
+              {installs.map(([, cmds], i) => (
+                <div class="panel" role="tabpanel" tabindex="0" id={`panel-${i}`} aria-labelledby={`tab-${i}`} hidden={i !== 0} data-copy={cmds.join('\n')}>
+                  {cmds.map((c) => <div><span>$</span>{c}</div>)}
+                </div>
+              ))}
+              <button class="copy" type="button" aria-label="Copy commands">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d={I.copy} /></svg>
+              </button>
+              <p class="sr" role="status" id="copied"></p>
+            </div>
+
         </div>
       </section>
 
@@ -335,30 +358,53 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
           status.textContent = 'Copy failed. Select the text instead.';
         }
       });
-      // Terminals replay their lines once when scrolled into view: typed commands, then output.
-      // Content is fully visible without JS or with reduced motion.
+      // Theme: follows the system until the visitor picks one; the choice is remembered.
+      const root = document.documentElement;
+      const themeBtn = document.querySelector('.theme');
+      const isDark = () => (root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+      const syncThemeBtn = () => themeBtn.setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme');
+      syncThemeBtn();
+      themeBtn.addEventListener('click', () => {
+        root.dataset.theme = isDark() ? 'light' : 'dark';
+        try { localStorage.setItem('hatchlock-theme', root.dataset.theme); } catch {}
+        syncThemeBtn();
+      });
+
+      // Terminal demos: the full text is in the HTML (no JS, reduced motion and screenshots
+      // see the finished state). With motion allowed, each one plays when scrolled into view:
+      // commands are typed, output lines slide in, and a Replay button runs it again.
+      const terms = [...document.querySelectorAll('.term')];
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-        const play = (pre) => {
+        const play = (term) => {
+          const pre = term.querySelector('pre'), btn = term.querySelector('.replay');
+          if (pre.dataset.playing) return;
           const lines = [...pre.children];
-          const texts = lines.map((l) => l.textContent);
-          lines.forEach((l) => { l.textContent = ''; l.hidden = true; });
-          pre.classList.add('typing');
+          const texts = (pre._texts ||= lines.map((l) => l.textContent));
+          pre.style.minHeight = pre.offsetHeight + 'px'; // keep the box its final size: no jump, never empty-looking
+          pre.dataset.playing = '1'; pre.setAttribute('aria-busy', 'true'); btn.hidden = true;
+          lines.forEach((l) => { l.textContent = ''; l.classList.remove('in'); l.hidden = true; });
           let i = 0;
+          const done = () => { delete pre.dataset.playing; pre.removeAttribute('aria-busy'); pre.classList.remove('typing'); btn.hidden = false; };
           const next = () => {
-            if (i >= lines.length) { pre.classList.remove('typing'); return; }
+            if (i >= lines.length) return done();
             const line = lines[i], text = texts[i++];
             line.hidden = false;
-            if (!text.trimStart().startsWith('>')) { line.textContent = text; return setTimeout(next, 260); }
+            if (!/^\s*[>$]/.test(text)) {
+              line.textContent = text;
+              requestAnimationFrame(() => line.classList.add('in'));
+              return setTimeout(next, line.classList.contains('bad') || line.classList.contains('ok') ? 520 : 240);
+            }
+            pre.classList.add('typing'); line.classList.add('in', 'cmd');
             let c = 0;
-            const type = () => { line.textContent = text.slice(0, ++c); c < text.length ? setTimeout(type, 28) : setTimeout(next, 420); };
+            const type = () => { line.textContent = text.slice(0, ++c); c < text.length ? setTimeout(type, 22 + Math.random() * 30) : (pre.classList.remove('typing'), setTimeout(next, 380)); };
             type();
           };
           next();
         };
         const io = new IntersectionObserver((entries) => entries.forEach((e) => {
           if (e.isIntersecting) { io.unobserve(e.target); play(e.target); }
-        }), { threshold: 0.6 });
-        document.querySelectorAll('.term pre').forEach((pre) => io.observe(pre));
+        }), { threshold: 0.45 });
+        terms.forEach((t) => { io.observe(t); t.querySelector('.replay').addEventListener('click', () => play(t)); });
       }
     </script>
   </body>

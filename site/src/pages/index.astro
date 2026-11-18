@@ -222,7 +222,8 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
             <p class="lede">Paste them into your terminal. HatchLock starts working in your next Claude Code session. No account, nothing to configure.</p>
             <p class="fine">Using Copilot, Cursor, Grok or ChatGPT? <a href={`${repo}#works-with`}>See every supported tool</a>.</p>
           </div>
-                        <div class="install">
+            <div class="install-col">
+            <div class="install">
               <div class="tabs" role="tablist" aria-label="Install method">
                 {installs.map(([name], i) => (
                   <button role="tab" type="button" id={`tab-${i}`} aria-controls={`panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{name}</button>
@@ -237,6 +238,17 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d={I.copy} /></svg>
               </button>
               <p class="sr" role="status" id="copied"></p>
+            </div>
+            <figure class="term" data-cast={`${base}/casts/install.cast`} data-poster="npt:0:14" data-rows="11">
+              <header>
+                <span class="vtabs" aria-hidden="true"><span>Problems</span><span>Output</span><b>Terminal</b></span>
+                <span class="shell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 17 6-5-6-5M12 19h8" /></svg>bash</span>
+                <button class="replay" type="button" aria-label="Replay demo: installing HatchLock" hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={I.replay} /></svg>Replay
+                </button>
+              </header>
+              <div class="cast"><figcaption>Recorded session: the two install commands, run in a fresh shell, add the marketplace from GitHub and install HatchLock.</figcaption></div>
+            </figure>
             </div>
 
         </div>
@@ -423,7 +435,7 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
         const narrow = matchMedia('(max-width: 600px)').matches;
         if (narrow) { box.classList.add('scroll'); box.tabIndex = 0; box.setAttribute('role', 'region'); box.setAttribute('aria-label', 'Terminal recording, scroll sideways'); }
         const p = AsciinemaPlayer.create(term.dataset.cast, box, {
-          cols: 92, rows: 26, fit: narrow ? false : 'width', terminalFontSize: narrow ? '10px' : undefined, controls: false, theme: 'hatchlock', idleTimeLimit: 1.2,
+          cols: 92, rows: Number(term.dataset.rows || 26), fit: narrow ? false : 'width', terminalFontSize: narrow ? '10px' : undefined, controls: false, theme: 'hatchlock', idleTimeLimit: 1.2,
           terminalFontFamily: "'JetBrains Mono Variable', ui-monospace, monospace", poster: term.dataset.poster, // resting frame: the moment HatchLock steps in
         });
         const play = () => { btn.hidden = true; p.seek(0).then(() => p.play()); };

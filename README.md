@@ -151,7 +151,11 @@ Run `/hatchlock:doctor` to see what is installed and what to add for the languag
 
 ## Settings
 
-**Disabled languages.** Turn HatchLock off for languages you don't want checked. When you enable the plugin, Claude Code asks for this setting; you can change it later in `/plugin`. Enter a comma-separated list, for example `go, rust`.
+**Disabled languages.** HatchLock needs no setup. To turn it off for languages you don't want checked, set `HATCHLOCK_DISABLED_LANGUAGES` to a comma-separated list in the `env` block of your Claude Code settings (`~/.claude/settings.json`, or `.claude/settings.json` for one project):
+
+```json
+{ "env": { "HATCHLOCK_DISABLED_LANGUAGES": "go, rust" } }
+```
 
 Names: `typescript`, `python`, `rust`, `go`, `cpp`, `zig`, `java`, `csharp`, `php`, `ruby`, `elixir`, `swift`, `kotlin`, `dart`, `lua`, `shell`, `terraform`, `r`.
 

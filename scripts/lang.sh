@@ -26,11 +26,16 @@ lang_of() {
   esac
 }
 
+# disabled_languages: the user's comma-separated opt-out list. HATCHLOCK_DISABLED_LANGUAGES
+# (set in settings.json "env") is the setting; CLAUDE_PLUGIN_OPTION_* is the pre-1.2 userConfig
+# value, still honoured for anyone who saved it.
+disabled_languages() {
+  printf '%s' "${HATCHLOCK_DISABLED_LANGUAGES:-${CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES:-${CLAUDE_PLUGIN_OPTION_disabled_languages:-}}}"
+}
+
 # lang_disabled <name>: true when the user turned that language off.
-# Claude Code exposes the plugin's userConfig value as CLAUDE_PLUGIN_OPTION_<KEY>;
-# both key spellings are accepted because the docs do not pin the case.
 lang_disabled() {
   local list
-  list=$(tr '[:upper:]' '[:lower:]' <<<"${CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES:-${CLAUDE_PLUGIN_OPTION_disabled_languages:-}}" | tr -d '[:space:]')
+  list=$(disabled_languages | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
   [[ -n "$1" && ",$list," == *",$1,"* ]]
 }

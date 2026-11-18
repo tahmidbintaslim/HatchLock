@@ -73,7 +73,7 @@ printf 'if true; then\n' > "$TMP_DIR/broken.sh"
 pre 2 "Write with @ts-ignore blocked"            "$(write_json "$TMP_DIR/bloat.ts" $'// @ts-ignore\nexport const x = 1;')"
 # Grok Build sends camelCase payloads and GROK_* variables.
 pre 2 "Grok payload (toolInput, camelCase) is guarded" "$(jq -nc --arg f "$TMP_DIR/g.ts" '{toolName:"Write",toolInput:{filePath:$f,content:"// @ts-ignore"}}')"
-CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="go, typescript" pre 0 "Opt-out: typescript disabled skips the guard" "$(write_json "$TMP_DIR/bloat.ts" '// @ts-ignore')"
+HATCHLOCK_DISABLED_LANGUAGES="go, typescript" pre 0 "Opt-out: typescript disabled skips the guard" "$(write_json "$TMP_DIR/bloat.ts" '// @ts-ignore')"
 CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="go" pre 2 "Opt-out: other languages still guarded" "$(write_json "$TMP_DIR/bloat.ts" '// @ts-ignore')"
 pre 2 "Edit adding 'as any' blocked"             "$(edit_json "$TMP_DIR/a.ts" 'const y = x as any;')"
 pre 0 "hatchlock-allow: exempts the line"         "$(edit_json "$TMP_DIR/a.py" 'x = 1  # type: ignore  # hatchlock-allow: stub lib')"
@@ -96,7 +96,7 @@ pre 0 ".d.ts declarations skipped"               "$(write_json "$TMP_DIR/x.d.ts"
 post 0 "Clean TS file passes"         "$TMP_DIR/clean.ts"
 post 2 "Shell syntax error fed back"  "$TMP_DIR/broken.sh"
 CLAUDE_PROJECT_DIR='' GROK_WORKSPACE_ROOT="$TMP_DIR" check 2 "Grok workspace root + toolInput payload" verify-edit.sh "$(jq -nc --arg f "$TMP_DIR/broken.sh" '{toolName:"Edit",toolInput:{filePath:$f}}')"
-CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="shell" post 0 "Opt-out: shell disabled skips the edit check" "$TMP_DIR/broken.sh"
+CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="shell" post 0 "Opt-out (legacy userConfig var): shell disabled skips the edit check" "$TMP_DIR/broken.sh"
 post 0 "Missing file is ignored"      "$TMP_DIR/does-not-exist.ts"
 printf 'const n: number = "s";\n' > "$TMP_DIR/typeerr.ts"
 post 0 "TS type errors deferred to Stop check" "$TMP_DIR/typeerr.ts"
@@ -147,7 +147,7 @@ git -C "$REPO" add -A && git -C "$REPO" -c user.email=t@t -c user.name=t commit 
 CLAUDE_PROJECT_DIR="$REPO" stop 0 "Clean git tree: no project check"  '{"stop_hook_active":false}'
 CLAUDE_PROJECT_DIR="$OUT_DIR" stop 0 "Non-git dir: no project check"   '{"stop_hook_active":false}'
 printf 'export const n: number = "s";\n' > "$REPO/a.ts"
-CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES="TypeScript" CLAUDE_PROJECT_DIR="$REPO" stop 0 "Opt-out: typescript disabled skips tsc" '{"stop_hook_active":false}'
+HATCHLOCK_DISABLED_LANGUAGES="TypeScript" CLAUDE_PROJECT_DIR="$REPO" stop 0 "Opt-out: typescript disabled skips tsc" '{"stop_hook_active":false}'
 CLAUDE_PROJECT_DIR="$REPO" stop 2 "Changed .ts with tsc errors fed back" '{"stop_hook_active":false}'
 grep -q 'TS2322' "$TMP_DIR/stderr" || fail "tsc error missing from Stop feedback"
 if ! grep -q -- '--tsBuildInfoFile' "$TMP_DIR/tsc-args" || grep -q -- "--tsBuildInfoFile $REPO" "$TMP_DIR/tsc-args"; then

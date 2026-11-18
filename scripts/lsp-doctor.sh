@@ -87,7 +87,7 @@ for row in "${COMPILERS[@]}"; do
 done
 want typescript && echo "  (tsc is used from the project's node_modules/.bin when present)"
 
-OFF="${CLAUDE_PLUGIN_OPTION_DISABLED_LANGUAGES:-${CLAUDE_PLUGIN_OPTION_disabled_languages:-}}"
+OFF=$(disabled_languages)
 if [[ -n "$OFF" ]]; then
   echo "------------------------------------------------------------------------"
   echo "  Turned off in settings: $OFF"

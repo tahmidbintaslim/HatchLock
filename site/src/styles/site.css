@@ -331,3 +331,5 @@ footer ul a { display: inline-block; padding-block: 0.2rem; }
   --term-color-12: var(--a12); --term-color-13: var(--a13); --term-color-14: var(--a14); --term-color-15: var(--a15);
 }
 @media (max-width: 720px) { .vtabs > span { display: none; } }
+.install-col { display: grid; gap: 1.25rem; min-width: 0; }
+.term { margin: 0; }

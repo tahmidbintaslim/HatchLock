@@ -1,16 +1,16 @@
 ---
 name: tight-diff
-description: Rules for every code change, including one-line fixes - keep the diff minimal, verify it with the compiler, and fix type errors instead of silencing them. Use before writing, editing, fixing, refactoring, debugging, or reviewing code in any language.
-when_to_use: When implementing features, fixing bugs, refactoring, editing files, or reviewing diffs, or when the user says "keep it simple", "no bloat", "tight diff", or "surgical edit".
-argument-hint: "[optional-target-file-or-task]"
-effort: high
+description: >-
+  Load before any code change, even a one-line fix. Keeps the diff minimal, verifies it with the compiler, and fixes type errors instead of silencing them. Applies to writing, editing, fixing, refactoring, debugging and reviewing code in any language, and to requests like "keep it simple", "no bloat" or "surgical edit".
+license: MIT
+metadata:
+  argument-hint: "[optional-target-file-or-task]"
 ---
-
 # Tight Diff: Minimal, Compiler-Verified Changes
 
 Hard rule first: **never silence the type checker.** New `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`, `# type: ignore`, `# pyright: ignore`, `@phpstan-ignore`, `#[allow(dead_code)]`, and `//nolint` must never be added (HatchLock's hooks block them before the write lands). Fix the type. Only when the user explicitly asks for a suppression, or a test must assert a type error, put `hatchlock-allow: <reason>` on the same line. Never add it on your own to get past the check. If the user asks for a suppression, first say what the real fix would be.
 
-If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
+If the user named a target (if your tool passes arguments, they appear here: `$ARGUMENTS`), focus strictly on it.
 
 ## 1. Think Before Coding
 1. State assumptions about input shapes, nullability, concurrency, environment, and failure modes.
@@ -29,7 +29,11 @@ If `$ARGUMENTS` is provided, focus strictly on: **$ARGUMENTS**.
 2. Before changing an exported symbol's parameters, visibility, or return type, find all references and update every caller in the same change.
 3. Touch only the lines the task needs. Do not reformat, reorder imports, rename stable names, or add comments that restate code. Remove only what your own change made dead.
 
-## 4. Goal-Driven Execution
+## 4. Current Docs, Not Memory
+1. Before using a library, framework, SDK or CLI API you have not just read in this project, check its current documentation: the project's installed version (lockfile, `node_modules`, `site-packages`, `go.mod`), then official docs. If a documentation tool is connected (for example a Context7 MCP server), use it.
+2. Prefer the API surface of the version the project actually pins over what you remember; flag deprecated calls you touch.
+
+## 5. Goal-Driven Execution
 1. Name the verification first: the compiler check, typecheck, or failing test that proves the change.
 2. Where HatchLock's hooks are installed, they enforce this in three stages (elsewhere, run the equivalent compiler or typecheck yourself after each change):
    - **Before each write:** escape hatches are blocked (`[HatchLock Guardrail]`).

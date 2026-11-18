@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      { "command": "./scripts/guard-escape-hatches.sh", "matcher": "Write" }
+    ]
+  }
+}

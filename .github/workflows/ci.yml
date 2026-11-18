@@ -20,9 +20,13 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -yq jq shellcheck
           npm install -g @anthropic-ai/claude-code@2.1.319
+          pip install skills-ref==0.1.1
       - name: Shellcheck
         run: shellcheck scripts/*.sh tests/*.sh
       - name: Test suite
         run: ./tests/test-suite.sh
+      - name: MCP server tests
+        working-directory: mcp
+        run: npm ci && npm test
       - name: Validate plugin
         run: claude plugin validate . --strict

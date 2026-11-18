@@ -1,0 +1,42 @@
+{
+  "name": "hatchlock",
+  "version": "1.2.0",
+  "description": "Blocks type-checker escape hatches (@ts-ignore, as any, # type: ignore) before they land, gates edits on your local compilers across 17 languages, adds 6 LSP servers missing from the official set, and ships minimal-diff, optimization, and architecture skills.",
+  "author": {
+    "name": "Tahmid Bin Taslim Rafi",
+    "url": "https://tahmid.space"
+  },
+  "repository": "https://github.com/tahmidbintaslim/HatchLock",
+  "license": "MIT",
+  "keywords": [
+    "type-safety",
+    "escape-hatch",
+    "quality-gate",
+    "lsp",
+    "clean-code",
+    "optimization",
+    "architecture",
+    "guardrails",
+    "typescript",
+    "python",
+    "rust",
+    "go",
+    "cpp",
+    "zig",
+    "java",
+    "csharp",
+    "php",
+    "ruby",
+    "swift"
+  ],
+  "homepage": "https://github.com/tahmidbintaslim/HatchLock",
+  "userConfig": {
+    "disabled_languages": {
+      "type": "string",
+      "title": "Disabled languages",
+      "description": "Comma-separated languages HatchLock should not check, e.g. \"go, rust\". Names: typescript, python, rust, go, cpp, zig, java, csharp, php, ruby, elixir, swift, kotlin, dart, lua, shell, terraform, r.",
+      "required": false,
+      "default": ""
+    }
+  }
+}

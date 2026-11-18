@@ -6,8 +6,9 @@ set -uo pipefail
 PAYLOAD=$(cat)
 command -v jq >/dev/null 2>&1 || exit 0
 
-# NotebookEdit sends .notebook_path; Write/Edit send .file_path.
-FILE_PATH=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$PAYLOAD")
+# NotebookEdit sends .notebook_path; Write/Edit send .file_path. Grok Build sends
+# the same fields in camelCase under .toolInput.
+FILE_PATH=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.file_path // $t.filePath // $t.notebook_path // $t.notebookPath // empty' <<<"$PAYLOAD")
 # shellcheck source=scripts/lang.sh
 . "$(dirname "$0")/lang.sh"
 EXT=$(tr '[:upper:]' '[:lower:]' <<<"${FILE_PATH##*.}")
@@ -26,10 +27,10 @@ case "$EXT" in
 esac
 
 # Write sends .content, Edit sends .new_string, NotebookEdit sends .new_source.
-NEW=$(jq -r '.tool_input.content // .tool_input.new_string // .tool_input.new_source // empty' <<<"$PAYLOAD")
+NEW=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.content // $t.contents // $t.new_string // $t.newString // $t.new_source // $t.newSource // empty' <<<"$PAYLOAD")
 # Suppressions already present (Edit's old_string, or the file being overwritten)
 # are not new: Claude may keep them while editing nearby code.
-OLD=$(jq -r '.tool_input.old_string // empty' <<<"$PAYLOAD")
+OLD=$(jq -r '(.tool_input // .toolInput // {}) as $t | $t.old_string // $t.oldString // empty' <<<"$PAYLOAD")
 # shortcut: notebooks are JSON, so a cell's existing suppressions never match line-for-line; parse cells if that blocks real edits.
 [[ -z "$OLD" && -f "$FILE_PATH" && "$EXT" != ipynb ]] && OLD=$(cat "$FILE_PATH")
 

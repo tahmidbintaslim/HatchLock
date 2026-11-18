@@ -419,8 +419,11 @@ const ribbon = Array.from({ length: 90 }, (_, i) => {
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
       document.querySelectorAll('.term[data-cast]').forEach((term) => {
         const box = term.querySelector('.cast'), btn = term.querySelector('.replay');
+        // Phones: scaling 92 columns to fit gives ~5px text, so keep it readable and scroll sideways.
+        const narrow = matchMedia('(max-width: 600px)').matches;
+        if (narrow) { box.classList.add('scroll'); box.tabIndex = 0; box.setAttribute('role', 'region'); box.setAttribute('aria-label', 'Terminal recording, scroll sideways'); }
         const p = AsciinemaPlayer.create(term.dataset.cast, box, {
-          cols: 92, rows: 26, fit: 'width', controls: false, theme: 'hatchlock', idleTimeLimit: 1.2,
+          cols: 92, rows: 26, fit: narrow ? false : 'width', terminalFontSize: narrow ? '10px' : undefined, controls: false, theme: 'hatchlock', idleTimeLimit: 1.2,
           terminalFontFamily: "'JetBrains Mono Variable', ui-monospace, monospace", poster: term.dataset.poster, // resting frame: the moment HatchLock steps in
         });
         const play = () => { btn.hidden = true; p.seek(0).then(() => p.play()); };

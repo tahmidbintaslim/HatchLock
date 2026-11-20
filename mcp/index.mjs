@@ -15,7 +15,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pick = (name) => (existsSync(join(here, name)) ? join(here, name) : join(here, '..', name));
 const SCRIPTS = pick('scripts');
 const SKILLS = pick('skills');
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 
 // Run one HatchLock script with a hook-style JSON payload on stdin.
 function run(script, payload, projectDir, args = []) {

@@ -1,6 +1,6 @@
 {
   "name": "hatchlock",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Minimal-diff, type-safety, optimization and architecture skills that keep code changes small, compiler-verified and free of type-checker escape hatches.",
   "author": {
     "name": "Tahmid Bin Taslim Rafi",

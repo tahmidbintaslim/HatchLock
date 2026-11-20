@@ -26,7 +26,7 @@ Requires Node.js 20+, `bash` and `jq`.
 ```json
 {
   "mcpServers": {
-    "hatchlock": { "command": "npx", "args": ["-y", "hatchlock-mcp@1.2.0"] }
+    "hatchlock": { "command": "npx", "args": ["-y", "hatchlock-mcp@1.3.0"] }
   }
 }
 ```
@@ -36,7 +36,7 @@ Requires Node.js 20+, `bash` and `jq`.
 ```json
 {
   "servers": {
-    "hatchlock": { "type": "stdio", "command": "npx", "args": ["-y", "hatchlock-mcp@1.2.0"] }
+    "hatchlock": { "type": "stdio", "command": "npx", "args": ["-y", "hatchlock-mcp@1.3.0"] }
   }
 }
 ```
@@ -46,7 +46,7 @@ Requires Node.js 20+, `bash` and `jq`.
 ```json
 {
   "context_servers": {
-    "hatchlock": { "command": "npx", "args": ["-y", "hatchlock-mcp@1.2.0"] }
+    "hatchlock": { "command": "npx", "args": ["-y", "hatchlock-mcp@1.3.0"] }
   }
 }
 ```

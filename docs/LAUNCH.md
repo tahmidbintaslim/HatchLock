@@ -13,11 +13,11 @@ git checkout main && git pull
 ```
 
 ```bash
-git tag v1.2.0 && git push origin v1.2.0
+git tag v1.3.0 && git push origin v1.3.0
 ```
 
 ```bash
-git rev-parse v1.2.0
+git rev-parse v1.3.0
 ```
 
 Keep that 40-character commit SHA; Grok and Copilot listings need it.
@@ -75,7 +75,7 @@ Keep that 40-character commit SHA; Grok and Copilot listings need it.
 - **Verified:** Copilot CLI 1.0.112 installs this repo as a plugin and as a marketplace (`copilot plugin marketplace add tahmidbintaslim/HatchLock`).
 - **You:** open the "external plugin" issue form at https://github.com/github/awesome-copilot/issues/new/choose with:
   - repository `tahmidbintaslim/HatchLock`
-  - release tag `v1.2.0`
+  - release tag `v1.3.0`
   - the commit SHA
 - Plugins with hooks need extra maintainer approvals and are re-reviewed about every 6 months.
 - Users can install today: `copilot plugin marketplace add tahmidbintaslim/HatchLock`, then `copilot plugin install hatchlock@hatchlock-marketplace`.
